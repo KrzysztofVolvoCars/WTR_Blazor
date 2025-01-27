@@ -1,0 +1,190 @@
+﻿@inject IDbContextFactory<ApplicationDbContext> DbFactory
+
+<MudDialog>
+    <DialogContent>
+        <MudForm Model="@Employee" @ref="form" Validation="@(EmployeeValidator.ValidateValue)">
+            <MudPaper Class="pa-4" Elevation="0">
+                <MudGrid Spacing="2">
+                    <MudItem xs="12" sm="6">
+                        <MudTextField @bind-Value="Employee.FirstName"
+                                    Label="First Name"
+                                    For="@(() => Employee.FirstName)"
+                                    Immediate="true"
+                                    HelperText="Required field - max 50 characters"
+                                    Counter="50" />
+                    </MudItem>
+
+                    <MudItem xs="12" sm="6">
+                        <MudTextField @bind-Value="Employee.LastName"
+                                    Label="Last Name"
+                                    For="@(() => Employee.LastName)"
+                                    Immediate="true"
+                                    HelperText="Required field - max 50 characters"
+                                    Counter="50" />
+                    </MudItem>
+
+                    <MudItem xs="12">
+                        <MudTextField @bind-Value="Employee.Email"
+                                    Label="Email"
+                                    For="@(() => Employee.Email)"
+                                    Immediate="true"
+                                    InputType="InputType.Email" />
+                    </MudItem>
+
+                    <MudItem xs="12">
+                        <MudTextField @bind-Value="Employee.Position"
+                                    Label="Position"
+                                    For="@(() => Employee.Position)"
+                                    Immediate="true"
+                                    HelperText="Required field - max 100 characters"
+                                    Counter="100" />
+                    </MudItem>
+
+            <MudItem xs="12">
+                <MudSwitch @bind-Value="Employee.IsInternal" 
+                           Label="Internal Employee" 
+                           Color="Color.Primary"
+                           UnCheckedColor="Color.Secondary"
+                           Dense="true"
+                           LabelPosition="LabelPosition.End"
+                           CheckedChanged="OnEmployeeTypeChanged">
+                    @(Employee.IsInternal ? "Internal" : "External") Employee
+                </MudSwitch>
+            </MudItem>
+
+                    @if (!Employee.IsInternal)
+                    {
+                        <MudItem xs="12">
+                            @if (!Employee.IsInternal)
+                            {
+                                <MudSelect T="int?"
+                                           @bind-Value="Employee.CompanyId"
+                                           Label="Company"
+                                           AnchorOrigin="Origin.BottomCenter">
+                                    @foreach (var company in companies)
+                                    {
+                                        <MudSelectItem T="int?" Value="@company.Id">@company.Name</MudSelectItem>
+                                    }
+                                </MudSelect>
+                            }
+                        </MudItem>
+                    }
+
+                    <MudItem xs="12" Class="mt-4">
+                        <MudAlert Severity="Severity.Info" Class="mb-2">
+                            Photo requirements:
+                            <MudText Typo="Typo.body2" Class="d-flex flex-column">
+                                <span>- Allowed formats: PNG, JPG, JPEG</span>
+                                <span>- Size: 250 × 100 px</span>
+                                <span>- Optional field</span>
+                            </MudText>
+                        </MudAlert>
+ 
+
+                        <MudFileUpload T="IBrowserFile"
+                                     Accept=".png, .jpg, .jpeg"
+                                     FilesChanged="UploadPhoto"
+                                     MaximumFileCount="1">
+                            <ActivatorContent>
+                                <MudButton Variant="Variant.Filled"
+                                         Color="Color.Primary"
+                                         StartIcon="@Icons.Material.Filled.CloudUpload"
+                                         FullWidth="true">
+                                    Upload photo (only .png, .jpg)
+                                </MudButton>
+                            </ActivatorContent>
+                        </MudFileUpload>
+
+                        @if (Employee.PhotoData != null && Employee.PhotoData.Length > 0)
+                        {
+                            <MudPaper Class="d-flex align-center gap-4 pa-4 mt-4" Elevation="0">
+                                <MudImage Src="@($"data:image/png;base64,{Convert.ToBase64String(Employee.PhotoData)}")"
+                                         Width="200"
+                                         Height="200"
+                                         ObjectFit="ObjectFit.Cover"
+                                         Class="rounded-lg" />
+                                <MudButton Color="Color.Error"
+                                         OnClick="@ClearPhoto"
+                                         StartIcon="@Icons.Material.Filled.Delete"
+                                         Size="Size.Small">
+                                    Remove photo
+                                </MudButton>
+                            </MudPaper>
+                        }
+                    </MudItem>
+                </MudGrid>
+            </MudPaper>
+        </MudForm>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Cancel</MudButton>
+        <MudButton Color="Color.Primary" OnClick="Submit">Save</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] IMudDialogInstance MudDialog { get; set; }
+    [Parameter] public Employee Employee { get; set; } = new();
+    private List<Company> companies = new();
+    private MudForm form;
+    private EmployeeValidator EmployeeValidator = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadCompanies();
+    }
+
+    private async Task LoadCompanies()
+    {
+        using var context = await DbFactory.CreateDbContextAsync();
+        companies = await context.Companies.ToListAsync();
+    }
+
+    private async Task UploadPhoto(IBrowserFile file)
+    {
+        using var ms = new MemoryStream();
+        await file.OpenReadStream().CopyToAsync(ms);
+        Employee.PhotoData = ms.ToArray();
+        StateHasChanged();
+    }
+
+    private void ClearPhoto()
+    {
+        Employee.PhotoData = null;
+        StateHasChanged();
+    }
+
+    private async Task Submit()
+    {
+        try
+        {
+            await form.Validate();
+            if (form.IsValid)
+            {
+                using var context = await DbFactory.CreateDbContextAsync();
+                if (Employee.Id == 0)
+                    context.Employees.Add(Employee);
+                else
+                    context.Employees.Update(Employee);
+                await context.SaveChangesAsync();
+                MudDialog.Close(DialogResult.Ok(true));
+            }
+        }
+        catch (Exception ex)
+        {
+            // Handle exception
+        }
+    }
+
+    private async Task OnEmployeeTypeChanged(bool isInternal)
+    {
+        if (isInternal)
+        {
+            Employee.CompanyId = null;
+            Employee.Company = null;
+        }
+        StateHasChanged();
+    }
+
+    private void Cancel() => MudDialog.Cancel();
+}
