@@ -6,9 +6,9 @@ public class CompanyValidator : AbstractValidator<Company>
 {
     public CompanyValidator()
     {
-        RuleFor(x => x.Name).NotEmpty().WithMessage("Nazwa firmy jest wymagana")
-            .MaximumLength(100).WithMessage("Nazwa firmy nie może przekraczać 100 znaków");
-        RuleFor(x => x.LogoData).NotEmpty().WithMessage("Logo jest wymagane");
+        RuleFor(x => x.Name).NotEmpty().WithMessage("Company name is required")
+            .MaximumLength(100).WithMessage("Company name cannot exceed 100 characters");
+        RuleFor(x => x.LogoData).NotEmpty().WithMessage("Logo is required");
     }
 
     public Func<object, string, Task<IEnumerable<string>>> ValidateValue => async (model, propertyName) =>

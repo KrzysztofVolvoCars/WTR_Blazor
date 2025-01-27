@@ -1,0 +1,119 @@
+﻿@inject IDbContextFactory<ApplicationDbContext> DbFactory
+
+<MudDialog>
+    <DialogContent>
+        <MudForm Model="@Company" @ref="form" Validation="@(CompanyValidator.ValidateValue)">
+            <MudPaper Class="pa-4" Elevation="0">
+                <MudGrid Spacing="2">
+                    <MudItem xs="12">
+                        <MudTextField @bind-Value="Company.Name"
+                                      Label="Company Name"
+                                      For="@(() => Company.Name)"
+                                      Immediate="true"
+                                      HelperText="Required field - max 100 characters"
+                                      Counter="100" />
+                    </MudItem>
+
+                    <MudItem xs="12" Class="mt-4">
+                        <MudAlert Severity="Severity.Info" Class="mb-2">
+                            Logo requirements:
+                            <MudText Typo="Typo.body2" Class="d-flex flex-column">
+                                <span>- Allowed formats: PNG, JPG, JPEG</span>
+                                <span>- Size: 250 × 100 px</span>
+                                <span>- Required field</span>
+                            </MudText>
+                        </MudAlert>
+
+                        <MudFileUpload T="IBrowserFile"
+                                       Accept=".png, .jpg, .jpeg"
+                                       FilesChanged="UploadLogo"
+                                       MaximumFileCount="1">
+                            <ActivatorContent>
+                                <MudButton Variant="Variant.Filled"
+                                           Color="Color.Primary"
+                                           StartIcon="@Icons.Material.Filled.CloudUpload"
+                                           FullWidth="true">
+                                    Upload logo (only .png, .jpg)
+                                </MudButton>
+                            </ActivatorContent>
+                        </MudFileUpload>
+
+                        @if (!string.IsNullOrEmpty(logoValidationMessage))
+                        {
+                            <MudText Color="Color.Error" Class="mt-1">@logoValidationMessage</MudText>
+                        }
+
+                        @if (Company.LogoData != null && Company.LogoData.Length > 0)
+                        {
+                            <MudPaper Class="d-flex align-center gap-4 pa-4 mt-4" Elevation="0">
+                                <MudImage Src="@($"data:image/png;base64,{Convert.ToBase64String(Company.LogoData)}")"
+                                          Width="250"
+                                          Height="100"
+                                          ObjectFit="ObjectFit.Cover"
+                                          Class="rounded-lg" />
+                                <MudButton Color="Color.Error"
+                                           OnClick="@ClearLogo"
+                                           StartIcon="@Icons.Material.Filled.Delete"
+                                           Size="Size.Small">
+                                    Remove logo
+                                </MudButton>
+                            </MudPaper>
+                        }
+                    </MudItem>
+                </MudGrid>
+            </MudPaper>
+        </MudForm>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Cancel</MudButton>
+        <MudButton Color="Color.Primary" OnClick="Submit">Save</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] IMudDialogInstance MudDialog { get; set; }
+    [Parameter] public Company Company { get; set; } = new();
+    private string logoValidationMessage;
+
+    private MudForm form;
+    private CompanyValidator CompanyValidator = new();
+
+    private async Task UploadLogo(IBrowserFile file)
+    {
+        using var ms = new MemoryStream();
+        await file.OpenReadStream().CopyToAsync(ms);
+        Company.LogoData = ms.ToArray();
+        StateHasChanged();
+    }
+
+    private void ClearLogo()
+    {
+        Company.LogoData = null;
+        StateHasChanged();
+    }
+
+    private async Task Submit()
+    {
+        try
+        {
+            await form.Validate();
+            if (form.IsValid)
+            {
+                using var context = await DbFactory.CreateDbContextAsync();
+                if (Company.Id == 0)
+                    context.Companies.Add(Company);
+                else
+                    context.Companies.Update(Company);
+                await context.SaveChangesAsync();
+                MudDialog.Close(DialogResult.Ok(true));
+            }
+        }
+        catch (DbUpdateException ex)
+        {
+            logoValidationMessage = "Logo is required";
+            StateHasChanged();
+        }
+    }
+
+    private void Cancel() => MudDialog.Cancel();
+}

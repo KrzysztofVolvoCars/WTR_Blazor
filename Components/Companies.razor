@@ -1,0 +1,85 @@
+﻿@page "/companies"
+
+@inject IDbContextFactory<ApplicationDbContext> DbFactory
+@inject IDialogService DialogService
+@inject ISnackbar Snackbar
+
+<MudText Typo="Typo.h3" Class="mb-4">Companies</MudText>
+
+<MudButton Color="Color.Primary" OnClick="@(() => OpenDialog(null))">Add Company</MudButton>
+
+<MudTable T="Company" Items="@companies" Dense="true" Hover="true" Bordered="true" Striped="true">
+    <HeaderContent>
+        <MudTh>Logo</MudTh>
+        <MudTh>Name</MudTh>
+        <MudTh>Actions</MudTh>
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd DataLabel="Logo">
+            @if (context.LogoData != null && context.LogoData.Length > 0)
+            {
+                <MudImage Src="@($"data:image/png;base64,{Convert.ToBase64String(context.LogoData)}")" Width="50" Height="50" ObjectFit="ObjectFit.Cover" />
+            }
+        </MudTd>
+        <MudTd DataLabel="Name">@context.Name</MudTd>
+        <MudTd DataLabel="Actions">
+            <MudButton Color="Color.Primary" OnClick="@(() => OpenDialog(context))">Edit</MudButton>
+            <MudButton Color="Color.Error" OnClick="@(() => DeleteCompany(context))">Delete</MudButton>
+        </MudTd>
+    </RowTemplate>
+</MudTable>
+
+@code {
+    private List<Company> companies = new();
+    private readonly DialogOptions dialogOptions = new() { CloseButton = true, MaxWidth = MaxWidth.Small, FullWidth = true };
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadCompanies();
+    }
+
+    private async Task LoadCompanies()
+    {
+        using var context = await DbFactory.CreateDbContextAsync();
+        companies = await context.Companies.ToListAsync();
+    }
+
+    private async Task OpenDialog(Company company)
+    {
+        var parameters = new DialogParameters();
+        if (company != null)
+            parameters.Add("Company", company);
+
+        var dialog = DialogService.Show<CompanyDialog>(company == null ? "Add Company" : "Edit Company", parameters, dialogOptions);
+        var result = await dialog.Result;
+
+        if (!result.Canceled)
+        {
+            await LoadCompanies();
+            Snackbar.Add("Company has been saved", Severity.Success);
+        }
+    }
+
+    private async Task DeleteCompany(Company company)
+    {
+        var parameters = new DialogParameters
+        {
+            { "ContentText", "Are you sure you want to delete this company?" },
+            { "ButtonText", "Delete" },
+            { "Color", Color.Error }
+        };
+
+        var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall };
+        var dialog = DialogService.Show<ConfirmDialog>("Delete", parameters, options);
+        var result = await dialog.Result;
+
+        if (!result.Canceled)
+        {
+            using var context = await DbFactory.CreateDbContextAsync();
+            context.Companies.Remove(company);
+            await context.SaveChangesAsync();
+            await LoadCompanies();
+            Snackbar.Add("Company has been deleted", Severity.Success);
+        }
+    }
+}
