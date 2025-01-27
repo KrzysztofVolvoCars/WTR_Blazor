@@ -1,0 +1,220 @@
+﻿@page "/project-details/{Id:int}"
+@inject IDbContextFactory<ApplicationDbContext> DbFactory
+@inject NavigationManager NavigationManager
+@inject ISnackbar Snackbar
+
+<MudContainer MaxWidth="MaxWidth.Large" Class="mt-4">
+    @if (project != null)
+    {
+        <MudGrid>
+            <MudItem xs="12">
+                <div class="d-flex justify-space-between align-center">
+                    <MudText Typo="Typo.h4">Project Details</MudText>
+                    <MudButton OnClick="GoBack" 
+                             StartIcon="@Icons.Material.Filled.ArrowBack" 
+                             Color="Color.Default">
+                        Back to Projects
+                    </MudButton>
+                </div>
+            </MudItem>
+
+            @* Basic Information Card *@
+            <MudItem xs="12" sm="6">
+                <MudCard Elevation="3" Class="rounded-lg">
+                    <MudCardHeader>
+                        <CardHeaderContent>
+                            <MudText Typo="Typo.h6">Basic Information</MudText>
+                        </CardHeaderContent>
+                    </MudCardHeader>
+                    <MudCardContent>
+                        <MudList T="NewProject" Dense="true">
+                            <MudListItem>
+                                <MudText><b>EC Number:</b> @project.ECNumber</MudText>
+                            </MudListItem>
+                            <MudListItem>
+                                <MudText><b>Project Name:</b> @project.ProjectName</MudText>
+                            </MudListItem>
+                            <MudListItem>
+                                <MudText><b>Type:</b> 
+                                    <MudChip Color="@GetProjectTypeColor(project.Type)" Size="Size.Small">
+                                        @project.Type.ToString()
+                                    </MudChip>
+                                </MudText>
+                            </MudListItem>
+                        </MudList>
+                    </MudCardContent>
+                </MudCard>
+            </MudItem>
+
+            @* Key Dates Card *@
+            <MudItem xs="12" sm="6">
+                <MudCard Elevation="3" Class="rounded-lg">
+                    <MudCardHeader>
+                        <CardHeaderContent>
+                            <MudText Typo="Typo.h6">Key Dates</MudText>
+                        </CardHeaderContent>
+                    </MudCardHeader>
+                    <MudCardContent>
+                        <MudList T="NewProject" Dense="true">
+                            <MudListItem>
+                                <div class="d-flex align-center">
+                                    <MudIcon Icon="@Icons.Material.Filled.CalendarToday" Color="Color.Primary" Class="mr-2"/>
+                                    <MudText><b>Start Date:</b> @project.StartDate?.ToShortDateString()</MudText>
+                                </div>
+                            </MudListItem>
+                            <MudListItem>
+                                <div class="d-flex align-center">
+                                    <MudIcon Icon="@Icons.Material.Filled.Build" Color="Color.Info" Class="mr-2"/>
+                                    <MudText><b>Installation:</b> @project.Installation?.ToShortDateString()</MudText>
+                                </div>
+                            </MudListItem>
+                            <MudListItem>
+                                <div class="d-flex align-center">
+                                    <MudIcon Icon="@Icons.Material.Filled.Flag" Color="Color.Success" Class="mr-2"/>
+                                    <MudText><b>SOP:</b> @project.SOP?.ToShortDateString()</MudText>
+                                </div>
+                            </MudListItem>
+                        </MudList>
+                    </MudCardContent>
+                </MudCard>
+            </MudItem>
+
+            @* Project Team Section *@
+            <MudItem xs="12">
+                <MudText Typo="Typo.h6" Class="mb-4">Project Team</MudText>
+            </MudItem>
+
+            @* Engineer Card *@
+            <MudItem xs="12" sm="4">
+                <MudCard Elevation="3" Class="rounded-lg">
+                    <MudCardHeader>
+                        <CardHeaderContent>
+                            <MudText Typo="Typo.h6">Engineer</MudText>
+                        </CardHeaderContent>
+                    </MudCardHeader>
+                    <MudCardContent>
+                        <div class="d-flex align-center">
+                            @if (project.Engineer?.PhotoData != null)
+                            {
+                                <MudAvatar Image="@($"data:image/png;base64,{Convert.ToBase64String(project.Engineer.PhotoData)}")" 
+                                          Class="mr-2" Size="Size.Large" />
+                            }
+                            else
+                            {
+                                <MudAvatar Color="Color.Secondary" Class="mr-2" Size="Size.Large">
+                                    @(project.Engineer?.FirstName.FirstOrDefault())@(project.Engineer?.LastName.FirstOrDefault())
+                                </MudAvatar>
+                            }
+                            <div>
+                                <MudText Typo="Typo.body1">@($"{project.Engineer?.FirstName} {project.Engineer?.LastName}")</MudText>
+                                <MudText Typo="Typo.body2">@project.Engineer?.Position</MudText>
+                            </div>
+                        </div>
+                    </MudCardContent>
+                </MudCard>
+            </MudItem>
+
+            @* R&M Responsible Card *@
+            <MudItem xs="12" sm="4">
+                <MudCard Elevation="3" Class="rounded-lg">
+                    <MudCardHeader>
+                        <CardHeaderContent>
+                            <MudText Typo="Typo.h6">R&M Responsible</MudText>
+                        </CardHeaderContent>
+                    </MudCardHeader>
+                    <MudCardContent>
+                        <div class="d-flex align-center">
+                            @if (project.RMResponsible?.PhotoData != null)
+                            {
+                                <MudAvatar Image="@($"data:image/png;base64,{Convert.ToBase64String(project.RMResponsible.PhotoData)}")" 
+                                          Class="mr-2" Size="Size.Large" />
+                            }
+                            else
+                            {
+                                <MudAvatar Color="Color.Secondary" Class="mr-2" Size="Size.Large">
+                                    @(project.RMResponsible?.FirstName.FirstOrDefault())@(project.RMResponsible?.LastName.FirstOrDefault())
+                                </MudAvatar>
+                            }
+                            <div>
+                                <MudText Typo="Typo.body1">@($"{project.RMResponsible?.FirstName} {project.RMResponsible?.LastName}")</MudText>
+                                <MudText Typo="Typo.body2">@project.RMResponsible?.Position</MudText>
+                            </div>
+                        </div>
+                    </MudCardContent>
+                </MudCard>
+            </MudItem>
+
+            @* Supplier Card *@
+            <MudItem xs="12" sm="4">
+                <MudCard Elevation="3" Class="rounded-lg">
+                    <MudCardHeader>
+                        <CardHeaderContent>
+                            <MudText Typo="Typo.h6">Supplier</MudText>
+                        </CardHeaderContent>
+                    </MudCardHeader>
+                    <MudCardContent>
+                        <div class="d-flex align-center">
+                            @if (project.Supplier?.LogoData != null)
+                            {
+                                <MudAvatar Image="@($"data:image/png;base64,{Convert.ToBase64String(project.Supplier.LogoData)}")" 
+                                          Class="mr-2" Size="Size.Large" />
+                            }
+                            else
+                            {
+                                <MudAvatar Color="Color.Secondary" Class="mr-2" Size="Size.Large">
+                                    @(project.Supplier?.Name.FirstOrDefault())
+                                </MudAvatar>
+                            }
+                            <MudText Typo="Typo.body1">@project.Supplier?.Name</MudText>
+                        </div>
+                    </MudCardContent>
+                </MudCard>
+            </MudItem>
+        </MudGrid>
+    }
+    else
+    {
+        <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
+    }
+</MudContainer>
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+
+    private NewProject project;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadProject();
+    }
+
+    private async Task LoadProject()
+    {
+        using var context = await DbFactory.CreateDbContextAsync();
+        project = await context.NewProjects
+            .Include(p => p.Engineer)
+            .Include(p => p.RMResponsible)
+            .Include(p => p.Supplier)
+            .FirstOrDefaultAsync(p => p.Id == Id);
+
+        if (project == null)
+        {
+            Snackbar.Add("Project not found", Severity.Error);
+            NavigationManager.NavigateTo("/projects");
+        }
+    }
+
+    private Color GetProjectTypeColor(ProjectType type) => type switch
+    {
+        ProjectType.NEW_CARMODEL => Color.Success,
+        ProjectType.ADAPT => Color.Primary,
+        ProjectType.CAPEX => Color.Secondary,
+        _ => Color.Default
+    };
+
+    private void GoBack()
+    {
+        NavigationManager.NavigateTo("/projects");
+    }
+}

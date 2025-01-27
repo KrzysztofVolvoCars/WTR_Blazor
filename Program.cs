@@ -18,6 +18,14 @@ builder.Services.AddDbContextFactory<ApplicationDbContext>(options =>
 
 var app = builder.Build();
 
+
+// Database initialization
+using (var scope = app.Services.CreateScope())
+{
+    var dbContextFactory = scope.ServiceProvider.GetRequiredService<IDbContextFactory<ApplicationDbContext>>();
+    await DbInitializer.Initialize(dbContextFactory);
+}
+
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {

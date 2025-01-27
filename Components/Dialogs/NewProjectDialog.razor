@@ -1,0 +1,146 @@
+﻿@inject IDbContextFactory<ApplicationDbContext> DbFactory
+
+<MudDialog>
+    <DialogContent>
+        <MudForm Model="@Project" @ref="form" Validation="@(ProjectValidator.ValidateValue)">
+            <MudPaper Class="pa-4" Elevation="0">
+                <MudGrid Spacing="2">
+                    <MudItem xs="12" sm="6">
+                        <MudTextField @bind-Value="Project.ECNumber"
+                                      Label="EC Number"
+                                      For="@(() => Project.ECNumber)"
+                                      Immediate="true"
+                                      HelperText="Required field"
+                                      Counter="100" />
+                    </MudItem>
+
+                    <MudItem xs="12" sm="6">
+                        <MudTextField @bind-Value="Project.ProjectName"
+                                      Label="Project Name"
+                                      For="@(() => Project.ProjectName)"
+                                      Immediate="true"
+                                      HelperText="Required field"
+                                      Counter="200" />
+                    </MudItem>
+
+                    <MudItem xs="12" sm="6">
+                        <MudSelect T="int?" @bind-Value="Project.EngineerId"
+                                   Label="Engineer"
+                                   For="@(() => Project.EngineerId)">
+                            @foreach (var engineer in engineers)
+                            {
+                                <MudSelectItem T="int?" Value="@engineer.Id">
+                                    @($"{engineer.FirstName} {engineer.LastName}")
+                                </MudSelectItem>
+                            }
+                        </MudSelect>
+                    </MudItem>
+
+                    <MudItem xs="12" sm="6">
+                        <MudSelect T="int?" @bind-Value="Project.SupplierId"
+                                   Label="Supplier"
+                                   For="@(() => Project.SupplierId)">
+                            @foreach (var company in companies)
+                            {
+                                <MudSelectItem T="int?" Value="@company.Id">
+                                    @company.Name
+                                </MudSelectItem>
+                            }
+                        </MudSelect>
+                    </MudItem>
+
+                    <MudItem xs="12" sm="6">
+                        <MudSelect T="int?" @bind-Value="Project.RMResponsibleId"
+                                   Label="R&M Responsible"
+                                   For="@(() => Project.RMResponsibleId)">
+                            @foreach (var responsible in rmResponsibles)
+                            {
+                                <MudSelectItem T="int?" Value="@responsible.Id">
+                                    @($"{responsible.FirstName} {responsible.LastName}")
+                                </MudSelectItem>
+                            }
+                        </MudSelect>
+                    </MudItem>
+
+                    <!-- Reszta formularza pozostaje bez zmian -->
+                    <MudItem xs="12">
+                        <MudRadioGroup @bind-Value="Project.Type" For="@(() => Project.Type)">
+                            <MudRadio T="ProjectType" Value="@ProjectType.NEW_CARMODEL">NEW CARMODEL</MudRadio>
+                            <MudRadio T="ProjectType" Value="@ProjectType.ADAPT">ADAPT</MudRadio>
+                            <MudRadio T="ProjectType" Value="@ProjectType.CAPEX">CAPEX</MudRadio>
+                        </MudRadioGroup>
+                    </MudItem>
+
+                    <MudItem xs="12" sm="4">
+                        <MudDatePicker @bind-Date="Project.StartDate"
+                                       Label="Start Date"
+                                       For="@(() => Project.StartDate)" />
+                    </MudItem>
+
+                    <MudItem xs="12" sm="4">
+                        <MudDatePicker @bind-Date="Project.Installation"
+                                       Label="Installation"
+                                       For="@(() => Project.Installation)" />
+                    </MudItem>
+
+                    <MudItem xs="12" sm="4">
+                        <MudDatePicker @bind-Date="Project.SOP"
+                                       Label="SOP"
+                                       For="@(() => Project.SOP)" />
+                    </MudItem>
+                </MudGrid>
+            </MudPaper>
+        </MudForm>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Cancel</MudButton>
+        <MudButton Color="Color.Primary" OnClick="Submit">Save</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] IMudDialogInstance MudDialog { get; set; }
+    [Parameter] public NewProject Project { get; set; } = new();
+    private List<Employee> engineers = new();
+    private List<Employee> rmResponsibles = new();
+    private List<Company> companies = new();
+    private MudForm form;
+    private NewProjectValidator ProjectValidator = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+    }
+
+    private async Task LoadData()
+    {
+        using var context = await DbFactory.CreateDbContextAsync();
+        engineers = await context.Employees.ToListAsync();
+        rmResponsibles = await context.Employees.ToListAsync();
+        companies = await context.Companies.ToListAsync();
+    }
+
+    private async Task Submit()
+    {
+        try
+        {
+            await form.Validate();
+            if (form.IsValid)
+            {
+                using var context = await DbFactory.CreateDbContextAsync();
+                if (Project.Id == 0)
+                    context.NewProjects.Add(Project);
+                else
+                    context.NewProjects.Update(Project);
+                await context.SaveChangesAsync();
+                MudDialog.Close(DialogResult.Ok(true));
+            }
+        }
+        catch (Exception ex)
+        {
+            // Handle exception
+        }
+    }
+
+    private void Cancel() => MudDialog.Cancel();
+}
