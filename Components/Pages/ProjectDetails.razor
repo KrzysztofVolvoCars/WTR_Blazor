@@ -3,7 +3,7 @@
 @inject NavigationManager NavigationManager
 @inject ISnackbar Snackbar
 
-<MudContainer MaxWidth="MaxWidth.Large" Class="mt-4">
+<MudContainer Fixed="true" Class="mt-4">
     @if (project != null)
     {
         <MudGrid>
@@ -35,9 +35,89 @@
                     }
                 </MudTimeline>
             </MudItem>
+
+            <MudGrid Class="mt-4">
+                <!-- Deliverables Card -->
+                <MudItem xs="12" sm="4" Style="display: flex">
+                    <MudCard Elevation="3" Class="hover-card" @onclick="@(() => NavigateToDeliverables())" Style="height: 100%; width: 100%">
+                        <MudCardContent Style="display: flex; flex-direction: column; justify-content: center; align-items: center">
+                            <MudText Typo="Typo.h3" Align="Align.Center">
+                                Deliverables
+                            </MudText>
+                            <MudText Typo="Typo.h1" Align="Align.Center" Color="Color.Primary" Style="margin-top: 16px">
+                                50%
+                            </MudText>
+                        </MudCardContent>
+                    </MudCard>
+                </MudItem>
+
+        
+                <!-- Status Card -->
+                <MudItem xs="12" sm="4" Style="display: flex">
+                    <MudCard Elevation="3" Class="hover-card" @onclick="@(() => NavigateToStatus())" Style="height: 100%; width: 100%">
+                        <MudCardContent Style="display: flex; flex-direction: column; justify-content: center; align-items: center">
+                            <MudText Typo="Typo.h3" Align="Align.Center">
+                                Status
+                            </MudText>
+                            <div Style="margin-top: 16px">
+                                <MudText Typo="Typo.h2" Align="Align.Center">
+                                    Doc: <span style="color: var(--mud-palette-primary)">34%</span>
+                                </MudText>
+                                <MudText Typo="Typo.h2" Align="Align.Center">
+                                    Edu: <span style="color: var(--mud-palette-primary)">32%</span>
+                                </MudText>
+                            </div>
+                        </MudCardContent>
+                    </MudCard>
+                </MudItem>
+
+
+
+                <!-- DFS Card -->
+                <MudItem xs="12" sm="4" Style="display: flex">
+                    <MudCard  Elevation="3" Class="hover-card" @onclick="@(() => NavigateToDFS())" Style="height: 100%; width: 100%">
+                        <MudCardContent>
+                            <MudText Typo="Typo.h3" Align="Align.Center">DFS</MudText>
+                            <MudSimpleTable>
+                                <thead>
+                                    <tr>
+                                        <th>DRM</th>
+                                        <th>FAT</th>
+                                        <th>SAT</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>12</td>
+                                        <td>23</td>
+                                        <td>32</td>
+                                        <td style="color: green">OK</td>
+                                    </tr>
+                                    <tr>
+                                        <td>5</td>
+                                        <td>14</td>
+                                        <td>26</td>
+                                        <td style="color: orange">Progress</td>
+                                    </tr>
+                                    <tr>
+                                        <td>34</td>
+                                        <td>17</td>
+                                        <td>29</td>
+                                        <td style="color: red">NOK</td>
+                                    </tr>
+                                </tbody>
+                            </MudSimpleTable>
+                        </MudCardContent>
+                    </MudCard>
+                </MudItem>
+            </MudGrid>
+
+
             @* Basic Information Card *@
+            <MudGrid Class="mt-4">
             <MudItem xs="12" sm="6">
-                <MudCard Elevation="3" Class="rounded-lg">
+                <MudCard Elevation="3" Class="rounded-lg" Style="height: 100%">
                     <MudCardHeader>
                         <CardHeaderContent>
                             <MudText Typo="Typo.h6">Basic Information</MudText>
@@ -65,7 +145,7 @@
 
             @* Key Dates Card *@
             <MudItem xs="12" sm="6">
-                <MudCard Elevation="3" Class="rounded-lg">
+                <MudCard Elevation="3" Class="rounded-lg" Style="height: 100%">
                     <MudCardHeader>
                         <CardHeaderContent>
                             <MudText Typo="Typo.h6">Key Dates</MudText>
@@ -95,8 +175,10 @@
                     </MudCardContent>
                 </MudCard>
             </MudItem>
+        </MudGrid>
 
             @* Project Team Section *@
+        <MudGrid Class="mt-4">
             <MudItem xs="12">
                 <MudText Typo="Typo.h6" Class="mb-4">Project Team</MudText>
             </MudItem>
@@ -188,6 +270,9 @@
                 </MudCard>
             </MudItem>
         </MudGrid>
+        </MudGrid>
+
+        <MudGrid Class="mt-4"> </MudGrid>
     }
     else
     {
@@ -197,6 +282,7 @@
 
 
 <style>
+ 
     .hover-component {
         transition: all 0.3s ease-in-out;
         position: relative;
@@ -208,6 +294,17 @@
         .hover-component:hover {
             background-color: rgba(12, 128, 233,0.2);
             transform: scale(1.1);
+        }
+
+    .hover-card {
+        transition: all 0.3s ease-in-out;
+        cursor: pointer;
+    }
+
+        .hover-card:hover {
+            transform: scale(1.02);
+            border: 2px solid var(--mud-palette-primary);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
         }
 </style>
 
@@ -263,5 +360,19 @@
         NavigationManager.NavigateTo($"/tasks/{project.Id}/{phaseId}");
     }
 
+    private void NavigateToDeliverables()
+    {
+        NavigationManager.NavigateTo("/deliverables");
+    }
+
+    private void NavigateToStatus()
+    {
+        NavigationManager.NavigateTo("/status");
+    }
+
+    private void NavigateToDFS()
+    {
+        NavigationManager.NavigateTo("/dfs");
+    }
 
 }
