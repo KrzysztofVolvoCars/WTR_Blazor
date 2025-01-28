@@ -1,0 +1,53 @@
+﻿@page "/deliverables/{ProjectId:int}"
+@inject IDbContextFactory<ApplicationDbContext> DbFactory
+@inject NavigationManager NavigationManager
+
+<PageTitle>@HeaderTitle</PageTitle>
+
+<MudContainer MaxWidth="MaxWidth.Large" Class="mt-4">
+    <MudGrid>
+        <MudItem xs="12">
+            <div class="d-flex justify-space-between align-center">
+                <MudText Typo="Typo.h4">@HeaderTitle</MudText>
+                <MudButton OnClick="GoBack"
+                           StartIcon="@Icons.Material.Filled.ArrowBack"
+                           Color="Color.Default">
+                    Back to Project
+                </MudButton>
+            </div>
+        </MudItem>
+    </MudGrid>
+</MudContainer>
+
+@code {
+    [Parameter]
+    public int ProjectId { get; set; }
+
+    private string HeaderTitle { get; set; }
+    private NewProject project;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadProject();
+        if (project != null)
+        {
+            HeaderTitle = $"Deliverables - {project.ECNumber} - {project.ProjectName}";
+        }
+        else
+        {
+            NavigationManager.NavigateTo("/");
+        }
+    }
+
+    private async Task LoadProject()
+    {
+        using var context = await DbFactory.CreateDbContextAsync();
+        project = await context.NewProjects
+            .FirstOrDefaultAsync(p => p.Id == ProjectId);
+    }
+
+    private void GoBack()
+    {
+        NavigationManager.NavigateTo($"/project-details/{ProjectId}");
+    }
+}

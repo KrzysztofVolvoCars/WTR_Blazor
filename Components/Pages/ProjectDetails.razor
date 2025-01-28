@@ -22,9 +22,11 @@
                 <MudTimeline TimelineOrientation="TimelineOrientation.Horizontal" TimelineAlign="TimelineAlign.Start">
                     @foreach (var phase in projectPhases.OrderBy(p => p.Order))
                     {
-                        <MudTimelineItem Color="@(project.ProjectPhaseId == phase.Id ? Color.Primary : Color.Default)">
+                        <MudTimelineItem Color="@(phase.Id == 4 ? Color.Success : (project.ProjectPhaseId == phase.Id ? Color.Primary : Color.Default))"
+                                         Size="@(phase.Id == 4 ? Size.Large : Size.Medium)"
+                                         Variant="@(phase.Id == 4 ? Variant.Filled : Variant.Outlined)">
                             <ItemContent>
-                                <MudText Color="@(project.ProjectPhaseId == phase.Id ? Color.Primary : Color.Default)"
+                                <MudText Color="@(phase.Id == 4 ? Color.Success : (project.ProjectPhaseId == phase.Id ? Color.Primary : Color.Default))"
                                          Style="cursor: pointer;"
                                          Class="hover-component"
                                          @onclick="() => NavigateToPhase(phase.Id)">
@@ -35,6 +37,7 @@
                     }
                 </MudTimeline>
             </MudItem>
+
 
             <MudGrid Class="mt-4">
                 <!-- Deliverables Card -->
@@ -362,17 +365,17 @@
 
     private void NavigateToDeliverables()
     {
-        NavigationManager.NavigateTo("/deliverables");
+        NavigationManager.NavigateTo($"/deliverables/{project.Id}");
     }
 
     private void NavigateToStatus()
     {
-        NavigationManager.NavigateTo("/status");
+        NavigationManager.NavigateTo($"/status/{project.Id}");
     }
 
     private void NavigateToDFS()
     {
-        NavigationManager.NavigateTo("/dfs");
+        NavigationManager.NavigateTo($"/dfs/{project.Id}");
     }
 
 }
