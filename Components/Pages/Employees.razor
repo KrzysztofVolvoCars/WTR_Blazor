@@ -94,24 +94,83 @@
 
     private async Task DeleteEmployee(Employee employee)
     {
-        var parameters = new DialogParameters
+        using var context = await DbFactory.CreateDbContextAsync();
+
+        // Pobierz projekty z dodatkowymi informacjami
+        var projectsAsEngineer = await context.NewProjects
+            .Where(p => p.EngineerId == employee.Id)
+            .Select(p => new { p.ECNumber, p.ProjectName })
+            .ToListAsync();
+
+        var projectsAsRM = await context.NewProjects
+            .Where(p => p.RMResponsibleId == employee.Id)
+            .Select(p => new { p.ECNumber, p.ProjectName })
+            .ToListAsync();
+
+        // Jeśli pracownik jest przypisany do projektów
+        if (projectsAsEngineer.Any() || projectsAsRM.Any())
         {
-            { "ContentText", "Are you sure you want to delete this employee?" },
-            { "ButtonText", "Delete" },
-            { "Color", Color.Error }
+            var message = $"Cannot delete employee: {employee.FirstName} {employee.LastName}\n\n";
+
+            if (projectsAsEngineer.Any())
+            {
+                message += "Assigned as Engineer in projects:\n";
+                foreach (var project in projectsAsEngineer)
+                {
+                    message += $"- {project.ECNumber}: {project.ProjectName}\n";
+                }
+                message += "\n";
+            }
+
+            if (projectsAsRM.Any())
+            {
+                message += "Assigned as RM Responsible in projects:\n";
+                foreach (var project in projectsAsRM)
+                {
+                    message += $"- {project.ECNumber}: {project.ProjectName}\n";
+                }
+            }
+
+            message += "\nPlease remove these assignments first.";
+
+            var parameters = new DialogParameters
+        {
+            { "ContentText", message },
+            { "ButtonText", "OK" },
+            { "Color", Color.Warning }
         };
 
-        var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall };
-        var dialog = DialogService.Show<ConfirmDialog>("Delete", parameters, options);
+            var options = new DialogOptions()
+                {
+                    CloseButton = true,
+                    MaxWidth = MaxWidth.Medium,
+                    FullWidth = true
+                };
+
+            DialogService.Show<ConfirmDialog>("Cannot Delete Employee", parameters, options);
+            return;
+        }
+
+        // Jeśli nie ma referencji, pokaż dialog potwierdzenia usunięcia
+        var deleteParameters = new DialogParameters
+    {
+        { "ContentText", "Are you sure you want to delete this employee?" },
+        { "ButtonText", "Delete" },
+        { "Color", Color.Error }
+    };
+
+        var deleteOptions = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall };
+        var dialog = DialogService.Show<ConfirmDialog>("Delete", deleteParameters, deleteOptions);
         var result = await dialog.Result;
 
         if (!result.Canceled)
         {
-            using var context = await DbFactory.CreateDbContextAsync();
             context.Employees.Remove(employee);
             await context.SaveChangesAsync();
             await LoadEmployees();
             Snackbar.Add("Employee has been deleted", Severity.Success);
         }
     }
+
+
 }

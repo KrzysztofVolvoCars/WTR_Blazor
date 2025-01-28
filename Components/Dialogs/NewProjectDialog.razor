@@ -142,7 +142,10 @@
                 if (Project.Id == 0)
                     context.NewProjects.Add(Project);
                 else
+                {
+                    context.Entry(Project).State = EntityState.Modified;
                     context.NewProjects.Update(Project);
+                }
                 await context.SaveChangesAsync();
                 MudDialog.Close(DialogResult.Ok(true));
             }

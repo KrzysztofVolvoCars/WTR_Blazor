@@ -9,8 +9,11 @@ public static class DbInitializer
     {
         using var context = await factory.CreateDbContextAsync();
 
+        // Automatyczne tworzenie bazy danych i stosowanie migracji
+        await context.Database.MigrateAsync();
+
         // Sprawdź czy tabela jest pusta
-        if (!context.ProjectPhases.Any())
+        if (!await context.ProjectPhases.AnyAsync())
         {
             var phases = new List<ProjectPhase>
             {
