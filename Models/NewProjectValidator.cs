@@ -14,6 +14,11 @@ public class NewProjectValidator : AbstractValidator<NewProject>
             .NotEmpty().WithMessage("Project name is required")
             .MaximumLength(200).WithMessage("Project name cannot exceed 200 characters");
 
+        RuleFor(x => x.PowerBI_URL)
+    .MaximumLength(500).WithMessage("PowerBI URL cannot exceed 500 characters")
+    .Must(uri => string.IsNullOrEmpty(uri) || Uri.TryCreate(uri, UriKind.Absolute, out _))
+    .WithMessage("PowerBI URL must be a valid URL");
+
         RuleFor(x => x.EngineerId)
             .NotEmpty().WithMessage("Engineer is required");
 

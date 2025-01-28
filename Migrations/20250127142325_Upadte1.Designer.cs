@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using WTR_Blazor.Data;
 
@@ -10,9 +11,11 @@ using WTR_Blazor.Data;
 namespace WTR_Blazor.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250127142325_Upadte1")]
+    partial class Upadte1
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.1");
@@ -90,15 +93,9 @@ namespace WTR_Blazor.Migrations
                     b.Property<DateTime?>("Installation")
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("PowerBI_URL")
-                        .HasColumnType("TEXT");
-
                     b.Property<string>("ProjectName")
                         .IsRequired()
                         .HasColumnType("TEXT");
-
-                    b.Property<int?>("ProjectPhaseId")
-                        .HasColumnType("INTEGER");
 
                     b.Property<int?>("RMResponsibleId")
                         .HasColumnType("INTEGER");
@@ -118,8 +115,6 @@ namespace WTR_Blazor.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("EngineerId");
-
-                    b.HasIndex("ProjectPhaseId");
 
                     b.HasIndex("RMResponsibleId");
 
@@ -161,10 +156,6 @@ namespace WTR_Blazor.Migrations
                         .WithMany()
                         .HasForeignKey("EngineerId");
 
-                    b.HasOne("WTR_Blazor.Models.ProjectPhase", "ProjectPhase")
-                        .WithMany()
-                        .HasForeignKey("ProjectPhaseId");
-
                     b.HasOne("WTR_Blazor.Models.Employee", "RMResponsible")
                         .WithMany()
                         .HasForeignKey("RMResponsibleId");
@@ -174,8 +165,6 @@ namespace WTR_Blazor.Migrations
                         .HasForeignKey("SupplierId");
 
                     b.Navigation("Engineer");
-
-                    b.Navigation("ProjectPhase");
 
                     b.Navigation("RMResponsible");
 

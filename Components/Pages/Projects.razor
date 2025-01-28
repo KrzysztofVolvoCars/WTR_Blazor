@@ -4,9 +4,32 @@
 @inject ISnackbar Snackbar
 @inject NavigationManager NavigationManager
 
-<MudText Typo="Typo.h3" Class="mb-4">Projects</MudText>
+@* <MudText Typo="Typo.h3" Class="mb-4">Projects</MudText>
 
-<MudButton Color="Color.Primary" OnClick="@(() => OpenDialog(null))">Add Project</MudButton>
+<MudButton Color="Color.Primary" OnClick="@(() => OpenDialog(null))">Add Project</MudButton> *@
+
+<div class="d-flex justify-space-between align-center mb-4">
+    <MudText Typo="Typo.h3">Projects</MudText>
+    <div class="d-flex gap-2">
+        <MudButton Variant="Variant.Filled"
+                   Color="Color.Primary"
+                   Size="Size.Large">
+            Overview all projects
+        </MudButton>
+        <MudButton Variant="Variant.Filled"
+                   Color="Color.Primary"
+                   Size="Size.Large">
+            MANNING
+        </MudButton>
+        <MudButton Variant="Variant.Filled"
+                   Color="Color.Success"
+                   StartIcon="@Icons.Material.Filled.Add"
+                   Size="Size.Large"
+                   OnClick="@(() => OpenDialog(null))">
+            Add Project
+        </MudButton>
+    </div>
+</div>
 
 <MudTable T="NewProject" Items="@projects" Dense="true" Hover="true" Bordered="true" Striped="true">
     <HeaderContent>
@@ -131,6 +154,7 @@
             .Include(p => p.Engineer)
             .Include(p => p.RMResponsible)
             .Include(p => p.Supplier)
+            .Include(p => p.ProjectPhase)
             .ToListAsync();
     }
 

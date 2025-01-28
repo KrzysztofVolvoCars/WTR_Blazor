@@ -1,0 +1,65 @@
+﻿@page "/tasks/{ProjectId:int}/{PhaseId:int}"
+@inject IDbContextFactory<ApplicationDbContext> DbFactory
+@inject NavigationManager NavigationManager
+
+<PageTitle>@HeaderTitle</PageTitle>
+
+
+<MudContainer MaxWidth="MaxWidth.Large" Class="mt-4">
+    <MudGrid>
+        <MudItem xs="12">
+            <div class="d-flex justify-space-between align-center">
+                <MudText Typo="Typo.h4">@HeaderTitle</MudText>
+                <MudButton OnClick="GoBack"
+                           StartIcon="@Icons.Material.Filled.ArrowBack"
+                           Color="Color.Default">
+                    Back to Project
+                </MudButton>
+            </div>
+        </MudItem>
+    </MudGrid>
+</MudContainer>
+
+
+@code {
+    [Parameter]
+    public int ProjectId { get; set; }
+
+    [Parameter]
+    public int PhaseId { get; set; }
+
+    private string HeaderTitle { get; set; }
+    private NewProject project;
+    private ProjectPhase phase;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadProjectAndPhase();
+        if (project != null && phase != null)
+        {
+            HeaderTitle = $"{project.ECNumber} - {project.ProjectName} - {phase.Name}";
+        }
+        else
+        {
+            NavigationManager.NavigateTo("/"); // Przekieruj do strony głównej, jeśli nie znaleziono projektu lub fazy
+        }
+    }
+
+    private async Task LoadProjectAndPhase()
+    {
+        using var context = await DbFactory.CreateDbContextAsync();
+        project = await context.NewProjects
+            .Include(p => p.ProjectPhase)
+            .FirstOrDefaultAsync(p => p.Id == ProjectId);
+
+        if (project != null)
+        {
+            phase = await context.ProjectPhases.FindAsync(PhaseId);
+        }
+    }
+
+    private void GoBack()
+    {
+        NavigationManager.NavigateTo($"/project-details/{ProjectId}");
+    }
+}

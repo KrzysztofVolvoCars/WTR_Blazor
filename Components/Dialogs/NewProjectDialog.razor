@@ -23,6 +23,17 @@
                                       Counter="200" />
                     </MudItem>
 
+                    <MudItem xs="12" >
+                        <MudTextField @bind-Value="Project.PowerBI_URL"
+                                      Label="PowerBI URL"
+                                      For="@(() => Project.PowerBI_URL)"
+                                      Immediate="true"
+                                      HelperText="Optional - must be a valid URL"
+                                      Adornment="Adornment.Start"
+                                      AdornmentContent="@powerBiIcon"
+                                      Counter="500" />
+                    </MudItem>
+
                     <MudItem xs="12" sm="6">
                         <MudSelect T="int?" @bind-Value="Project.EngineerId"
                                    Label="Engineer"
@@ -143,4 +154,33 @@
     }
 
     private void Cancel() => MudDialog.Cancel();
+
+    private RenderFragment powerBiIcon = @<MudIcon Size="Size.Small">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="0" y="0" width="24" height="24" fill="none" />
+            <path d="M21,1.001V23c0,0.553-0.448,1.001-1.001,1.001h-6.248c-0.553,0-1.001-0.448-1.001-1.001V1.001
+            C12.75,0.448,13.198,0,13.751,0h6.248C20.552,0,21,0.448,21,1.001Z" fill="url(#_Linear1)" />
+            <path d="M16.125,7V24h-8.25V7c0-0.552,0.448-1,1-1h6.25C15.677,6,16.125,6.448,16.125,7Z"
+                  fill="url(#_Linear2)" />
+            <path d="M3,13v10c0,0.552,0.448,1,1,1h7.25V13c0-0.552-0.448-1-1-1H4C3.448,12,3,12.448,3,13Z"
+                  fill="url(#_Linear3)" />
+            <defs>
+                <linearGradient id="_Linear1" x1="0" y1="0" x2="1" y2="0" gradientUnits="userSpaceOnUse"
+                                gradientTransform="matrix(10.3423,22.6073,-22.6073,10.3423,11.375,0)">
+                    <stop offset="0" stop-color="#E6AD10" />
+                    <stop offset="1" stop-color="#C87E0E" />
+                </linearGradient>
+                <linearGradient id="_Linear2" x1="0" y1="0" x2="1" y2="0" gradientUnits="userSpaceOnUse"
+                                gradientTransform="matrix(8.71252,17.425,-17.425,8.71252,7.87433,6)">
+                    <stop offset="0" stop-color="#F6D751" />
+                    <stop offset="1" stop-color="#E6AD10" />
+                </linearGradient>
+                <linearGradient id="_Linear3" x1="0" y1="0" x2="1" y2="0" gradientUnits="userSpaceOnUse"
+                                gradientTransform="matrix(4.79743,11.7252,-11.7252,4.79743,2.99932,12)">
+                    <stop offset="0" stop-color="#F9E589" />
+                    <stop offset="1" stop-color="#F6D751" />
+                </linearGradient>
+            </defs>
+        </svg>
+    </MudIcon>;
 }
