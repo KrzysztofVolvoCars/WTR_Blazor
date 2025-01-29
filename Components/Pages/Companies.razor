@@ -23,7 +23,7 @@
         </MudTd>
         <MudTd DataLabel="Name">@context.Name</MudTd>
         <MudTd DataLabel="Actions">
-            <MudButton Color="Color.Primary" OnClick="@(() => OpenDialog(context))">Edit</MudButton>
+            <MudButton Color="Color.Error" OnClick="@(() => OpenDialog(context))">Edit</MudButton>
             <MudButton Color="Color.Error" OnClick="@(() => DeleteCompany(context))">Delete</MudButton>
         </MudTd>
     </RowTemplate>

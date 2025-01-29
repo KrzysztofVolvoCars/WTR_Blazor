@@ -11,11 +11,12 @@ public class Employee
     public int? CompanyId { get; set; }
     public Company? Company { get; set; }
 
-    public bool IsInternal { get; set; } = true;
+    public bool IsInternal { get; set; } = true;     
 
     /// <summary>
     /// Employee's position in the company
     /// </summary>
  
     public string Position { get; set; }
+    bool IsActive { get; set; } = true;
 }

@@ -47,7 +47,7 @@
             @(context.Company?.Name ?? (context.IsInternal ? "Internal Employee" : "-"))
         </MudTd>
         <MudTd DataLabel="Actions">
-            <MudButton Color="Color.Primary" OnClick="@(() => OpenDialog(context))">Edit</MudButton>
+            <MudButton Color="Color.Error" OnClick="@(() => OpenDialog(context))">Edit</MudButton>
             <MudButton Color="Color.Error" OnClick="@(() => DeleteEmployee(context))">Delete</MudButton>
         </MudTd>
     </RowTemplate>
