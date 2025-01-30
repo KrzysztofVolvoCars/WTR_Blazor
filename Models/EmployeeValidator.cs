@@ -17,9 +17,7 @@ public class EmployeeValidator : AbstractValidator<Employee>
         RuleFor(x => x.Email)
             .EmailAddress().WithMessage("Invalid email format");
 
-        RuleFor(x => x.Position)
-            .NotEmpty().WithMessage("Position is required")
-            .MaximumLength(100).WithMessage("Position cannot exceed 100 characters");
+ 
 
         // Warunkowa walidacja CompanyId: wymagane tylko dla pracowników zewnętrznych
         RuleFor(x => x.CompanyId)

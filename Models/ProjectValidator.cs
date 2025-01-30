@@ -2,9 +2,9 @@
 
 namespace WTR_Blazor.Models;
 
-public class NewProjectValidator : AbstractValidator<NewProject>
+public class ProjectValidator : AbstractValidator<Project>
 {
-    public NewProjectValidator()
+    public ProjectValidator()
     {
         RuleFor(x => x.ECNumber)
             .NotEmpty().WithMessage("EC Number is required")
@@ -44,7 +44,7 @@ public class NewProjectValidator : AbstractValidator<NewProject>
 
     public Func<object, string, Task<IEnumerable<string>>> ValidateValue => async (model, propertyName) =>
     {
-        var result = await ValidateAsync(ValidationContext<NewProject>.CreateWithOptions((NewProject)model, x => x.IncludeProperties(propertyName)));
+        var result = await ValidateAsync(ValidationContext<Project>.CreateWithOptions((Project)model, x => x.IncludeProperties(propertyName)));
         if (result.IsValid)
             return Array.Empty<string>();
         return result.Errors.Select(e => e.ErrorMessage);

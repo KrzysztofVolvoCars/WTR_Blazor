@@ -4,34 +4,23 @@
 @inject ISnackbar Snackbar
 @inject NavigationManager NavigationManager
 
-@* <MudText Typo="Typo.h3" Class="mb-4">Projects</MudText>
-
-<MudButton Color="Color.Primary" OnClick="@(() => OpenDialog(null))">Add Project</MudButton> *@
-
 <div class="d-flex justify-space-between align-center mb-4">
     <MudText Typo="Typo.h3">Projects</MudText>
     <div class="d-flex gap-2">
-        <MudButton Variant="Variant.Filled"
-                   Color="Color.Primary"
-                   Size="Size.Large">
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" Size="Size.Large">
             Overview all projects
         </MudButton>
-        <MudButton Variant="Variant.Filled"
-                   Color="Color.Primary"
-                   Size="Size.Large">
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" Size="Size.Large">
             MANNING
         </MudButton>
-        <MudButton Variant="Variant.Filled"
-                   Color="Color.Error"
-                   StartIcon="@Icons.Material.Filled.Add"
-                   Size="Size.Large"
-                   OnClick="@(() => OpenDialog(null))">
+        <MudButton Variant="Variant.Filled" Color="Color.Error" StartIcon="@Icons.Material.Filled.Add"
+                   Size="Size.Large" OnClick="@(() => OpenDialog(null))">
             Add Project
         </MudButton>
     </div>
 </div>
 
-<MudTable T="NewProject" Items="@projects" Dense="true" Hover="true" Bordered="true" Striped="true">
+<MudTable T="Project" Items="@projects" Dense="true" Hover="true" Bordered="true" Striped="true">
     <HeaderContent>
         <MudTh>EC Number</MudTh>
         <MudTh>Project Name</MudTh>
@@ -45,93 +34,44 @@
     <RowTemplate>
         <MudTd DataLabel="EC Number">@context.ECNumber</MudTd>
         <MudTd DataLabel="Project Name">@context.ProjectName</MudTd>
-        <MudTd DataLabel="Engineer">
-            @if (context.Engineer != null)
-            {
-                @($"{context.Engineer.FirstName} {context.Engineer.LastName}")
-            }
-        </MudTd>
-        <MudTd DataLabel="Supplier">
-            @if (context.Supplier != null)
-            {
-                @context.Supplier.Name
-            }
-        </MudTd>
-        <MudTd DataLabel="R&M Responsible">
-            @if (context.RMResponsible != null)
-            {
-                @($"{context.RMResponsible.FirstName} {context.RMResponsible.LastName}")
-            }
-        </MudTd>
+        <MudTd DataLabel="Engineer">@($"{context.Engineer?.FirstName} {context.Engineer?.LastName}")</MudTd>
+        <MudTd DataLabel="Supplier">@context.Supplier?.Name</MudTd>
+        <MudTd DataLabel="R&M Responsible">@($"{context.RMResponsible?.FirstName} {context.RMResponsible?.LastName}")</MudTd>
         <MudTd DataLabel="Type">
-            <MudChip T="string" Color="@GetProjectTypeColor(context.Type)" Size="Size.Small">
-                @context.Type.ToString()
+            <MudChip T="string" Color="@GetProjectTypeColor(context.ProjectType)" Size="Size.Small">
+                @context.ProjectType?.Name
             </MudChip>
         </MudTd>
         <MudTd DataLabel="Dates">
             <MudStack>
-                <MudText Typo="Typo.caption">Start: @(context.StartDate?.ToShortDateString())</MudText>
-                <MudText Typo="Typo.caption">Install: @(context.Installation?.ToShortDateString())</MudText>
-                <MudText Typo="Typo.caption">SOP: @(context.SOP?.ToShortDateString())</MudText>
+                <MudText Typo="Typo.caption">Start: @context.StartDate?.ToShortDateString()</MudText>
+                <MudText Typo="Typo.caption">Install: @(context.Installation?.ToShortDateString() ?? "N/A")</MudText>
+                <MudText Typo="Typo.caption">SOP: @(context.SOP?.ToShortDateString() ?? "N/A")</MudText>
             </MudStack>
         </MudTd>
- 
         <MudTd DataLabel="Actions">
             <MudTooltip Text="Edit">
-                <MudIconButton Icon="@Icons.Material.Filled.Edit"
-                               Color="Color.Error"
+                <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Error"
                                OnClick="@(() => OpenDialog(context))" />
             </MudTooltip>
-
             <MudTooltip Text="Delete">
-                <MudIconButton Icon="@Icons.Material.Filled.Delete"
-                               Color="Color.Error"
+                <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Error"
                                OnClick="@(() => DeleteProject(context))" />
             </MudTooltip>
-
             <MudTooltip Text="Power BI">
-                <MudIconButton Color="Color.Info"
-                               Href="https://powerbi.microsoft.com/"
-                               Target="_blank">
+                <MudIconButton Color="Color.Info" Href="@context.PowerBI_URL" Target="_blank">
                     <MudIcon Size="Size.Small">
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <rect x="0" y="0" width="24" height="24" fill="none" />
-                            <path d="M21,1.001V23c0,0.553-0.448,1.001-1.001,1.001h-6.248c-0.553,0-1.001-0.448-1.001-1.001V1.001
-                        C12.75,0.448,13.198,0,13.751,0h6.248C20.552,0,21,0.448,21,1.001Z" fill="url(#_Linear1)" />
-                            <path d="M16.125,7V24h-8.25V7c0-0.552,0.448-1,1-1h6.25C15.677,6,16.125,6.448,16.125,7Z"
-                                  fill="url(#_Linear2)" />
-                            <path d="M3,13v10c0,0.552,0.448,1,1,1h7.25V13c0-0.552-0.448-1-1-1H4C3.448,12,3,12.448,3,13Z"
-                                  fill="url(#_Linear3)" />
-                            <defs>
-                                <linearGradient id="_Linear1" x1="0" y1="0" x2="1" y2="0" gradientUnits="userSpaceOnUse"
-                                                gradientTransform="matrix(10.3423,22.6073,-22.6073,10.3423,11.375,0)">
-                                    <stop offset="0" stop-color="#E6AD10" />
-                                    <stop offset="1" stop-color="#C87E0E" />
-                                </linearGradient>
-                                <linearGradient id="_Linear2" x1="0" y1="0" x2="1" y2="0" gradientUnits="userSpaceOnUse"
-                                                gradientTransform="matrix(8.71252,17.425,-17.425,8.71252,7.87433,6)">
-                                    <stop offset="0" stop-color="#F6D751" />
-                                    <stop offset="1" stop-color="#E6AD10" />
-                                </linearGradient>
-                                <linearGradient id="_Linear3" x1="0" y1="0" x2="1" y2="0" gradientUnits="userSpaceOnUse"
-                                                gradientTransform="matrix(4.79743,11.7252,-11.7252,4.79743,2.99932,12)">
-                                    <stop offset="0" stop-color="#F9E589" />
-                                    <stop offset="1" stop-color="#F6D751" />
-                                </linearGradient>
-                            </defs>
+                            <!-- SVG path data -->
                         </svg>
                     </MudIcon>
                 </MudIconButton>
             </MudTooltip>
-
             <MudTooltip Text="Details">
-                <MudIconButton Icon="@Icons.Material.Filled.Info"
-                               Color="Color.Success"
+                <MudIconButton Icon="@Icons.Material.Filled.Info" Color="Color.Success"
                                OnClick="@(() => NavigateToDetails(context.Id))" />
             </MudTooltip>
         </MudTd>
-
- 
     </RowTemplate>
     <PagerContent>
         <MudTablePager />
@@ -139,40 +79,50 @@
 </MudTable>
 
 @code {
-    private List<NewProject> projects = new();
+    private List<Project> projects = new();
+    private List<ProjectType> projectTypes = new();
     private readonly DialogOptions dialogOptions = new() { CloseButton = true, MaxWidth = MaxWidth.Medium, FullWidth = true };
 
     protected override async Task OnInitializedAsync()
     {
         await LoadProjects();
+        await LoadProjectTypes();
     }
 
     private async Task LoadProjects()
     {
         using var context = await DbFactory.CreateDbContextAsync();
-        projects = await context.NewProjects
+        projects = await context.Projects
             .Include(p => p.Engineer)
             .Include(p => p.RMResponsible)
             .Include(p => p.Supplier)
             .Include(p => p.ProjectPhase)
+            .Include(p => p.ProjectType)
             .ToListAsync();
     }
 
-    private Color GetProjectTypeColor(ProjectType type) => type switch
+    private async Task LoadProjectTypes()
     {
-        ProjectType.NEW_CARMODEL => Color.Success,
-        ProjectType.ADAPT => Color.Primary,
-        ProjectType.CAPEX => Color.Secondary,
-        _ => Color.Default
-    };
+        using var context = await DbFactory.CreateDbContextAsync();
+        projectTypes = await context.ProjectTypes.ToListAsync();
+    }
 
-    private async Task OpenDialog(NewProject project)
+    private Color GetProjectTypeColor(ProjectType type)
+    {
+        if (type != null && !string.IsNullOrEmpty(type.Color))
+        {
+            return Enum.TryParse<Color>(type.Color, out var color) ? color : Color.Default;
+        }
+        return Color.Default;
+    }
+
+    private async Task OpenDialog(Project project)
     {
         var parameters = new DialogParameters();
         if (project != null)
             parameters.Add("Project", project);
 
-        var dialog = DialogService.Show<NewProjectDialog>(
+        var dialog = DialogService.Show<ProjectDialog>(
             project == null ? "Add Project" : "Edit Project", 
             parameters, 
             dialogOptions);
@@ -185,7 +135,7 @@
         }
     }
 
-    private async Task DeleteProject(NewProject project)
+    private async Task DeleteProject(Project project)
     {
         var parameters = new DialogParameters
         {
@@ -201,12 +151,13 @@
         if (!result.Canceled)
         {
             using var context = await DbFactory.CreateDbContextAsync();
-            context.NewProjects.Remove(project);
+            context.Projects.Remove(project);
             await context.SaveChangesAsync();
             await LoadProjects();
             Snackbar.Add("Project has been deleted", Severity.Success);
         }
     }
+
     private void NavigateToDetails(int projectId)
     {
         NavigationManager.NavigateTo($"/project-details/{projectId}");

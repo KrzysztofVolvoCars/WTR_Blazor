@@ -29,7 +29,7 @@
     public int PhaseId { get; set; }
 
     private string HeaderTitle { get; set; }
-    private NewProject project;
+    private Project project;
     private ProjectPhase phase;
 
     protected override async Task OnInitializedAsync()
@@ -48,7 +48,7 @@
     private async Task LoadProjectAndPhase()
     {
         using var context = await DbFactory.CreateDbContextAsync();
-        project = await context.NewProjects
+        project = await context.Projects
             .Include(p => p.ProjectPhase)
             .FirstOrDefaultAsync(p => p.Id == ProjectId);
 

@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.EntityFrameworkCore;
 using MudBlazor.Services;
 using WTR_Blazor.Components;
@@ -12,18 +13,29 @@ builder.Services.AddMudServices();
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
-builder.Services.AddDbContextFactory<ApplicationDbContext>(options =>
-    options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
+// Pobranie ?cie?ki do pliku bazy SQLite
+var dbPath = Path.Combine(builder.Environment.ContentRootPath, "wwwroot", "Database", "todo.db");
 
+
+builder.Services.AddDbContextFactory<ApplicationDbContext>(options =>
+    options.UseSqlite($"Data Source={dbPath}"));
+
+
+builder.Services.Configure<FormOptions>(options =>
+{
+    options.MultipartBodyLengthLimit = 1024 * 1024 * 10; // 10MB
+});
 
 var app = builder.Build();
 
 
-// Database initialization
+// Database initialization if flag in appsettings.json is set to true
 using (var scope = app.Services.CreateScope())
 {
     var dbContextFactory = scope.ServiceProvider.GetRequiredService<IDbContextFactory<ApplicationDbContext>>();
-    await DbInitializer.Initialize(dbContextFactory);
+    var configuration = scope.ServiceProvider.GetRequiredService<IConfiguration>();
+    var shouldInitialize = configuration.GetValue<bool>("InitializeDatabase");
+    await DbInitializer.Initialize(dbContextFactory, shouldInitialize);
 }
 
 // Configure the HTTP request pipeline.

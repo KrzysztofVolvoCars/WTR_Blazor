@@ -4,49 +4,57 @@
 @inject NavigationManager NavigationManager
 @inject IJSRuntime JS
 @inject ISnackbar Snackbar
-
+@using Microsoft.AspNetCore.Components.Forms
+ 
 <PageTitle>@HeaderTitle</PageTitle>
-
 
 <MudContainer Fixed="true" Class="mt-4">
     @if (project != null)
     {
+        <MudContainer Fixed="true" Class="mt-4">
+            <MudGrid>
+                <MudItem xs="12">
+                    <div class="d-flex justify-space-between align-center">
+                        <MudText Typo="Typo.h4">@HeaderTitle</MudText>
+                        <MudButton OnClick="GoBack"
+                                   StartIcon="@Icons.Material.Filled.ArrowBack"
+                                   Color="Color.Default">
+                            Back to Project
+                        </MudButton>
+                    </div>
+                </MudItem>
+            </MudGrid>
+        </MudContainer>
 
-<MudContainer Fixed="true" Class="mt-4">
-    <MudGrid>
-        <MudItem xs="12">
-            <div class="d-flex justify-space-between align-center">
-                <MudText Typo="Typo.h4">@HeaderTitle</MudText>
-                <MudButton OnClick="GoBack"
-                StartIcon="@Icons.Material.Filled.ArrowBack"
-                Color="Color.Default">
-                    Back to Project
-                </MudButton>
-            </div>
-        </MudItem>
-    </MudGrid>
-</MudContainer>
-
-        <MudPaper Elevation="3" Class="pa-4 d-flex flex-column align-center text-center">
-            <MudText Typo="Typo.body1">
+        <MudPaper Elevation="3" Class="pa-4">
+            <MudText Typo="Typo.body1" Class="text-center">
                 A list of all machines used in a station. Can be presented as a separate list (by station, or line).
             </MudText>
             <MudDivider Class="my-3" />
-            <MudButton @onclick="DownloadExcelFile" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Download">
-                Download Edited File
-            </MudButton>
+            <MudGrid>
+                <MudItem xs="6" Class="d-flex justify-center">
+                    <MudButton @onclick="DownloadExcelFile" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Download">
+                        Download Edited File
+                    </MudButton>
+                </MudItem>
+                <MudItem xs="6" Class="d-flex justify-center">
+                    <MudButton Color="Color.Secondary" StartIcon="@Icons.Material.Filled.Upload" OnClick="TriggerFileUpload">
+                        Upload File
+                    </MudButton>
+                    <InputFile OnChange="HandleFileSelected" class="d-none" @ref="fileInput" />
+                </MudItem>
+            </MudGrid>
         </MudPaper>
     }
 </MudContainer>
-
 
 @code {
     [Parameter]
     public int ProjectId { get; set; }
 
     private string HeaderTitle { get; set; }
-    private NewProject project;
-
+    private Project project;
+    private InputFile fileInput;
    
    
 
@@ -58,7 +66,7 @@
     private async Task LoadProject()
     {
         using var context = await DbFactory.CreateDbContextAsync();
-        project = await context.NewProjects
+        project = await context.Projects
             .Include(p => p.Engineer)
             .Include(p => p.RMResponsible)
             .Include(p => p.Supplier)
@@ -129,5 +137,87 @@
         }
     }
 
+    private async Task TriggerFileUpload()
+    {
+        await JS.InvokeVoidAsync("click", fileInput.Element);
+    }
+
+    private async Task HandleFileSelected(InputFileChangeEventArgs e)
+    {
+        try
+        {
+            var file = e.File;
+            if (file == null)
+            {
+                Snackbar.Add("No file selected", Severity.Warning);
+                return;
+            }
+
+            // Sprawdzenie rozszerzenia pliku
+            var extension = Path.GetExtension(file.Name).ToLower();
+            if (extension != ".xlsx" && extension != ".xlsm")
+            {
+                Snackbar.Add("Please select an Excel file (.xlsx or .xlsm)", Severity.Warning);
+                return;
+            }
+
+            // Sprawdzenie rozmiaru pliku (np. max 10MB)
+            if (file.Size > 10 * 1024 * 1024)
+            {
+                Snackbar.Add("File is too large. Maximum size is 10MB", Severity.Warning);
+                return;
+            }
+
+            // Wczytanie pliku do pamięci
+            using var stream = file.OpenReadStream();
+            using var memoryStream = new MemoryStream();
+            await stream.CopyToAsync(memoryStream);
+            memoryStream.Position = 0;
+
+            // Ścieżka do zapisania pliku
+            var uploadsPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "Excels", "Uploads");
+            Directory.CreateDirectory(uploadsPath); // Utworzenie katalogu jeśli nie istnieje
+
+            var fileName = $"Tooltree-{project.ECNumber}-{project.ProjectName}{extension}";
+            var filePath = Path.Combine(uploadsPath, fileName);
+
+            // Zapisanie pliku
+            await File.WriteAllBytesAsync(filePath, memoryStream.ToArray());
+
+            memoryStream.Position = 0;
+            await ProcessExcelFile(memoryStream);
+
+            Snackbar.Add("File uploaded successfully", Severity.Success);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error uploading file: {ex}");
+            Snackbar.Add("Error uploading file", Severity.Error);
+        }
+    }
+
+    private async Task ProcessExcelFile(Stream stream)
+    {
+        try
+        {
+            using var workbook = new XLWorkbook(stream);
+            var worksheet = workbook.Worksheets.FirstOrDefault();
+            if (worksheet != null)
+            {
+                // Przykład odczytu danych
+                var supplierName = worksheet.Cell("C2").Value.ToString();
+                var projectNumber = worksheet.Cell("C4").Value.ToString();
+
+                // Tu możesz dodać logikę przetwarzania danych
+
+                Snackbar.Add("File processed successfully", Severity.Success);
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error processing Excel file: {ex}");
+            Snackbar.Add("Error processing Excel file", Severity.Error);
+        }
+    }
 
 }

@@ -1,8 +1,10 @@
 ﻿namespace WTR_Blazor.Models;
 
-public enum ProjectType
+public class ProjectType
 {
-    NEW_CARMODEL,
-    ADAPT,
-    CAPEX
+    public int Id { get; set; }
+    public int Order { get; set; }
+    public string Name { get; set; }
+    public bool IsActive { get; set; } = true;
+    public string Color { get; set; }
 }

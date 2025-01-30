@@ -37,7 +37,8 @@
         <MudTd DataLabel="First Name">@context.FirstName</MudTd>
         <MudTd DataLabel="Last Name">@context.LastName</MudTd>
         <MudTd DataLabel="Email">@context.Email</MudTd>
-        <MudTd DataLabel="Position">@context.Position</MudTd>
+        <MudTd DataLabel="Position">@(context.Position?.Name ?? "-")</MudTd>
+
         <MudTd DataLabel="Type">
             <MudChip T="string" Color="@(context.IsInternal ? Color.Success : Color.Primary)" Size="Size.Small">
                 @(context.IsInternal ? "Internal" : "External")
@@ -70,6 +71,7 @@
         using var context = await DbFactory.CreateDbContextAsync();
         employees = await context.Employees
             .Include(e => e.Company)
+            .Include(e => e.Position)   
             .ToListAsync();
     }
 
@@ -97,12 +99,12 @@
         using var context = await DbFactory.CreateDbContextAsync();
 
         // Pobierz projekty z dodatkowymi informacjami
-        var projectsAsEngineer = await context.NewProjects
+        var projectsAsEngineer = await context.Projects
             .Where(p => p.EngineerId == employee.Id)
             .Select(p => new { p.ECNumber, p.ProjectName })
             .ToListAsync();
 
-        var projectsAsRM = await context.NewProjects
+        var projectsAsRM = await context.Projects
             .Where(p => p.RMResponsibleId == employee.Id)
             .Select(p => new { p.ECNumber, p.ProjectName })
             .ToListAsync();

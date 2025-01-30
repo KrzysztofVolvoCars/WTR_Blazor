@@ -23,14 +23,14 @@
                                       Counter="200" />
                     </MudItem>
 
-                    <MudItem xs="12" >
+                    <MudItem xs="12">
                         <MudTextField @bind-Value="Project.PowerBI_URL"
                                       Label="PowerBI URL"
                                       For="@(() => Project.PowerBI_URL)"
                                       Immediate="true"
                                       HelperText="Optional - must be a valid URL"
                                       Adornment="Adornment.Start"
-                                      AdornmentContent="@powerBiIcon"
+                                      AdornmentIcon="@Icons.Custom.Brands.MicrosoftAzure"
                                       Counter="500" />
                     </MudItem>
 
@@ -38,11 +38,10 @@
                         <MudSelect T="int?" @bind-Value="Project.EngineerId"
                                    Label="Engineer"
                                    For="@(() => Project.EngineerId)">
+                            <MudSelectItem T="int?" Value="null">None</MudSelectItem>
                             @foreach (var engineer in engineers)
                             {
-                                <MudSelectItem T="int?" Value="@engineer.Id">
-                                    @($"{engineer.FirstName} {engineer.LastName}")
-                                </MudSelectItem>
+                                <MudSelectItem T="int?" Value="@engineer.Id">@($"{engineer.FirstName} {engineer.LastName}")</MudSelectItem>
                             }
                         </MudSelect>
                     </MudItem>
@@ -51,11 +50,10 @@
                         <MudSelect T="int?" @bind-Value="Project.SupplierId"
                                    Label="Supplier"
                                    For="@(() => Project.SupplierId)">
+                            <MudSelectItem T="int?" Value="null">None</MudSelectItem>
                             @foreach (var company in companies)
                             {
-                                <MudSelectItem T="int?" Value="@company.Id">
-                                    @company.Name
-                                </MudSelectItem>
+                                <MudSelectItem T="int?" Value="@company.Id">@company.Name</MudSelectItem>
                             }
                         </MudSelect>
                     </MudItem>
@@ -64,23 +62,25 @@
                         <MudSelect T="int?" @bind-Value="Project.RMResponsibleId"
                                    Label="R&M Responsible"
                                    For="@(() => Project.RMResponsibleId)">
+                            <MudSelectItem T="int?" Value="null">None</MudSelectItem>
                             @foreach (var responsible in rmResponsibles)
                             {
-                                <MudSelectItem T="int?" Value="@responsible.Id">
-                                    @($"{responsible.FirstName} {responsible.LastName}")
-                                </MudSelectItem>
+                                <MudSelectItem T="int?" Value="@responsible.Id">@($"{responsible.FirstName} {responsible.LastName}")</MudSelectItem>
                             }
                         </MudSelect>
                     </MudItem>
 
-                    <!-- Reszta formularza pozostaje bez zmian -->
+
                     <MudItem xs="12">
-                        <MudRadioGroup @bind-Value="Project.Type" For="@(() => Project.Type)">
-                            <MudRadio T="ProjectType" Value="@ProjectType.NEW_CARMODEL">NEW CARMODEL</MudRadio>
-                            <MudRadio T="ProjectType" Value="@ProjectType.ADAPT">ADAPT</MudRadio>
-                            <MudRadio T="ProjectType" Value="@ProjectType.CAPEX">CAPEX</MudRadio>
+                        <MudRadioGroup T="int?" @bind-Value="Project.ProjectTypeId" For="@(() => Project.ProjectTypeId)">
+                            <MudRadio T="int?" Value="@((int?)null)" Color="Color.Default" Dense="true">None</MudRadio>
+                            @foreach (var type in projectTypes.OrderBy(pt => pt.Order))
+                            {
+                                <MudRadio T="int?" Value="@type.Id" Color="@GetProjectTypeColor(type)" Dense="true">@type.Name</MudRadio>
+                            }
                         </MudRadioGroup>
                     </MudItem>
+
 
                     <MudItem xs="12" sm="4">
                         <MudDatePicker @bind-Date="Project.StartDate"
@@ -111,12 +111,13 @@
 
 @code {
     [CascadingParameter] IMudDialogInstance MudDialog { get; set; }
-    [Parameter] public NewProject Project { get; set; } = new();
+    [Parameter] public Project Project { get; set; } = new();
     private List<Employee> engineers = new();
     private List<Employee> rmResponsibles = new();
     private List<Company> companies = new();
     private MudForm form;
-    private NewProjectValidator ProjectValidator = new();
+    private ProjectValidator ProjectValidator = new();
+    private List<ProjectType> projectTypes = new();
 
     protected override async Task OnInitializedAsync()
     {
@@ -126,64 +127,31 @@
     private async Task LoadData()
     {
         using var context = await DbFactory.CreateDbContextAsync();
+        projectTypes = await context.ProjectTypes.Where(pt => pt.IsActive).ToListAsync();
         engineers = await context.Employees.ToListAsync();
         rmResponsibles = await context.Employees.ToListAsync();
         companies = await context.Companies.ToListAsync();
     }
 
+    private Color GetProjectTypeColor(ProjectType type)
+    {
+        return Enum.TryParse<Color>(type.Color, out var color) ? color : Color.Default;
+    }
+
     private async Task Submit()
     {
-        try
+        await form.Validate();
+        if (form.IsValid)
         {
-            await form.Validate();
-            if (form.IsValid)
-            {
-                using var context = await DbFactory.CreateDbContextAsync();
-                if (Project.Id == 0)
-                    context.NewProjects.Add(Project);
-                else
-                {
-                    context.Entry(Project).State = EntityState.Modified;
-                    context.NewProjects.Update(Project);
-                }
-                await context.SaveChangesAsync();
-                MudDialog.Close(DialogResult.Ok(true));
-            }
-        }
-        catch (Exception ex)
-        {
-            // Handle exception
+            using var context = await DbFactory.CreateDbContextAsync();
+            if (Project.Id == 0)
+                context.Projects.Add(Project);
+            else
+                context.Projects.Update(Project);
+            await context.SaveChangesAsync();
+            MudDialog.Close(DialogResult.Ok(true));
         }
     }
 
     private void Cancel() => MudDialog.Cancel();
-
-    private RenderFragment powerBiIcon = @<MudIcon Size="Size.Small">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <rect x="0" y="0" width="24" height="24" fill="none" />
-            <path d="M21,1.001V23c0,0.553-0.448,1.001-1.001,1.001h-6.248c-0.553,0-1.001-0.448-1.001-1.001V1.001
-            C12.75,0.448,13.198,0,13.751,0h6.248C20.552,0,21,0.448,21,1.001Z" fill="url(#_Linear1)" />
-            <path d="M16.125,7V24h-8.25V7c0-0.552,0.448-1,1-1h6.25C15.677,6,16.125,6.448,16.125,7Z"
-                  fill="url(#_Linear2)" />
-            <path d="M3,13v10c0,0.552,0.448,1,1,1h7.25V13c0-0.552-0.448-1-1-1H4C3.448,12,3,12.448,3,13Z"
-                  fill="url(#_Linear3)" />
-            <defs>
-                <linearGradient id="_Linear1" x1="0" y1="0" x2="1" y2="0" gradientUnits="userSpaceOnUse"
-                                gradientTransform="matrix(10.3423,22.6073,-22.6073,10.3423,11.375,0)">
-                    <stop offset="0" stop-color="#E6AD10" />
-                    <stop offset="1" stop-color="#C87E0E" />
-                </linearGradient>
-                <linearGradient id="_Linear2" x1="0" y1="0" x2="1" y2="0" gradientUnits="userSpaceOnUse"
-                                gradientTransform="matrix(8.71252,17.425,-17.425,8.71252,7.87433,6)">
-                    <stop offset="0" stop-color="#F6D751" />
-                    <stop offset="1" stop-color="#E6AD10" />
-                </linearGradient>
-                <linearGradient id="_Linear3" x1="0" y1="0" x2="1" y2="0" gradientUnits="userSpaceOnUse"
-                                gradientTransform="matrix(4.79743,11.7252,-11.7252,4.79743,2.99932,12)">
-                    <stop offset="0" stop-color="#F9E589" />
-                    <stop offset="1" stop-color="#F6D751" />
-                </linearGradient>
-            </defs>
-        </svg>
-    </MudIcon>;
 }
