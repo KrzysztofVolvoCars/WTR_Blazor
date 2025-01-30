@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.13.35716.79 d17.13
+VisualStudioVersion = 17.13.35716.79
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WTR_Blazor", "WTR_Blazor.csproj", "{8CA889CA-00E4-4D89-A0F7-D193097C2B71}"
 EndProject

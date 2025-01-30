@@ -13,8 +13,8 @@ public class Tooltree
     public ChangeType ChangeType { get; set; }
     public string Description { get; set; } = string.Empty;
     public string AssetNumber { get; set; } = string.Empty;
-    public string CommentLinebuilder { get; set; } = string.Empty;
-    public string CommentVolvo { get; set; } = string.Empty;
+    public string? CommentLinebuilder { get; set; } = string.Empty;
+    public string? CommentVolvo { get; set; } = string.Empty;
 
     public override string ToString()
     {

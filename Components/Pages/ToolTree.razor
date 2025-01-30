@@ -1,0 +1,133 @@
+﻿@page "/tooltree/{ProjectId:int}"
+
+@inject IDbContextFactory<ApplicationDbContext> DbFactory
+@inject NavigationManager NavigationManager
+@inject IJSRuntime JS
+@inject ISnackbar Snackbar
+
+<PageTitle>@HeaderTitle</PageTitle>
+
+
+<MudContainer Fixed="true" Class="mt-4">
+    @if (project != null)
+    {
+
+<MudContainer Fixed="true" Class="mt-4">
+    <MudGrid>
+        <MudItem xs="12">
+            <div class="d-flex justify-space-between align-center">
+                <MudText Typo="Typo.h4">@HeaderTitle</MudText>
+                <MudButton OnClick="GoBack"
+                StartIcon="@Icons.Material.Filled.ArrowBack"
+                Color="Color.Default">
+                    Back to Project
+                </MudButton>
+            </div>
+        </MudItem>
+    </MudGrid>
+</MudContainer>
+
+        <MudPaper Elevation="3" Class="pa-4 d-flex flex-column align-center text-center">
+            <MudText Typo="Typo.body1">
+                A list of all machines used in a station. Can be presented as a separate list (by station, or line).
+            </MudText>
+            <MudDivider Class="my-3" />
+            <MudButton @onclick="DownloadExcelFile" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Download">
+                Download Edited File
+            </MudButton>
+        </MudPaper>
+    }
+</MudContainer>
+
+
+@code {
+    [Parameter]
+    public int ProjectId { get; set; }
+
+    private string HeaderTitle { get; set; }
+    private NewProject project;
+
+   
+   
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadProject();
+    }
+
+    private async Task LoadProject()
+    {
+        using var context = await DbFactory.CreateDbContextAsync();
+        project = await context.NewProjects
+            .Include(p => p.Engineer)
+            .Include(p => p.RMResponsible)
+            .Include(p => p.Supplier)
+            .Include(p => p.ProjectPhase)
+            .FirstOrDefaultAsync(p => p.Id == ProjectId);
+
+        HeaderTitle = $"{project.ECNumber} - {project.ProjectName} - ToolTree";
+
+        if (project == null)
+        {
+            Snackbar.Add("Project not found", Severity.Error);
+            NavigationManager.NavigateTo("/projects");
+        }
+    }
+
+
+    private void GoBack()
+    {
+        NavigationManager.NavigateTo($"/project-details/{ProjectId}");
+    }
+
+    public async Task DownloadExcelFile()
+    {
+        try
+        {
+            var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "Excels", "Tooltree.xlsm");
+
+            await using var stream = new MemoryStream();
+
+            using (var workbook = new XLWorkbook(filePath))
+            {
+                var worksheet = workbook.Worksheets.FirstOrDefault();
+                if (worksheet != null)
+                {
+                    // Próba wyłączenia autofiltrów
+                    if (worksheet.AutoFilter != null)
+                    {
+                        worksheet.AutoFilter.Clear();
+                    }
+
+                    worksheet.Cell("C2").Value = project.Supplier.Name;
+                    worksheet.Cell("C4").Value = project.ECNumber + "-" +project.ProjectName;
+
+                    string fileName = "";
+                    // Spróbujmy zapisać z określonymi opcjami
+                    var saveOptions = new SaveOptions
+                        {
+                            ValidatePackage = false,
+                            EvaluateFormulasBeforeSaving = false,
+                            GenerateCalculationChain = false
+                        };
+
+                    workbook.SaveAs(stream, saveOptions);
+                }
+            }
+
+            stream.Position = 0;
+            var streamRef = new DotNetStreamReference(stream);
+
+            await JS.InvokeVoidAsync("downloadFileFromStream", "Tooltree-" + project.ECNumber + "-" + project.ProjectName+".xlsm", streamRef);
+        }
+        catch (Exception ex)
+        {
+            // Tutaj lepiej użyć właściwego loggera
+            //_logger.LogError(ex, "Błąd podczas pobierania pliku Excel");
+            Console.WriteLine($"Error downloading file: {ex}");
+            throw; // Pozwól na obsługę błędu na wyższym poziomie
+        }
+    }
+
+
+}

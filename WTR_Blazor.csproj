@@ -7,8 +7,19 @@
     <UserSecretsId>68b710f7-3c70-4b9e-887a-e99ae4c4c59c</UserSecretsId>
   </PropertyGroup>
 
+  <ItemGroup>
+    <None Remove="wwwroot\Excels\Tooltree.xlsm" />
+  </ItemGroup>
 
   <ItemGroup>
+    <EmbeddedResource Include="wwwroot\Excels\Tooltree.xlsm">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+  </ItemGroup>
+
+
+  <ItemGroup>
+    <PackageReference Include="ClosedXML" Version="0.104.2" />
     <PackageReference Include="FluentValidation.AspNetCore" Version="11.3.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.1">
       <PrivateAssets>all</PrivateAssets>
