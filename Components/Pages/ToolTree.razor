@@ -75,6 +75,33 @@ Class="dark-overlay">
             </MudGrid>
         </MudPaper>
     }
+    @if (toolTreeData.Any())
+    {<MudPaper Elevation="3" Class="mt-4 pa-4">
+        <MudDataGrid Items="@toolTreeData" Dense="true" Hover="true" Bordered="true" Striped="true">
+            <Columns>
+                <PropertyColumn Property="x => x.PLCStationEquipment" Title="PLC Station Equipment" />
+                <PropertyColumn Property="x => x.MachineNumber" Title="Machine Number" />
+                <PropertyColumn Property="x => x.PLC" Title="PLC" />
+                <PropertyColumn Property="x => x.Station" Title="Station" />
+                <PropertyColumn Property="x => x.AssetCode" Title="Asset Code" />
+                <PropertyColumn Property="x => x.ToolNumber" Title="Tool Number" />
+                <!-- New column for TooltreeType.Code with tooltip -->
+                <TemplateColumn Title="Type">
+                    <CellTemplate>
+                        <MudTooltip Text="@(context.Item.Type?.Description ?? "No description")">
+                            <MudText>@(context.Item.Type?.Code ?? "N/A")</MudText>
+                        </MudTooltip>
+                    </CellTemplate>
+                </TemplateColumn>
+                <PropertyColumn Property="x => x.Description" Title="Description" />
+                <PropertyColumn Property="x => x.AssetNumber" Title="Asset Number" />
+                <PropertyColumn Property="x => x.CommentLinebuilder" Title="Comment Linebuilder" />
+                <PropertyColumn Property="x => x.CommentVolvo" Title="Comment Volvo" />
+            </Columns>
+        </MudDataGrid>
+        </MudPaper>
+    }
+  
 </MudContainer>
 
 @code {
@@ -87,7 +114,7 @@ Class="dark-overlay">
 
     private bool _isProcessing;
 
-
+    private List<TooltreeData> toolTreeData = new List<TooltreeData>();
 
 
     protected override async Task OnInitializedAsync()
@@ -257,7 +284,7 @@ Class="dark-overlay">
                 var range = worksheet.Range("B7:L" + lastRow);
                 var table = range.AsTable();
 
-                var toolTreeData = new List<TooltreeData>();
+                toolTreeData.Clear();
                 foreach (var row in table.DataRange.Rows())
                 {
                     if (string.IsNullOrEmpty(row.Cell(3).Value.ToString()))
@@ -266,27 +293,27 @@ Class="dark-overlay">
                     }
                     else
                     {
-                        var typeCode = row.Cell(7).Value.ToString();
-                        var tooltreeType = tooltreeTypes.FirstOrDefault(t => t.Code == typeCode);
-                        var tooltreeTypeName = tooltreeTypes.FirstOrDefault(t => t.Code == typeCode);
+                        
+                    var typeCode = row.Cell(7).Value.ToString();
+                    var tooltreeType = tooltreeTypes.FirstOrDefault(t => t.Code == typeCode);
 
-                        var toolTree = new TooltreeData
-                            {
-                                PLCStationEquipment = row.Cell(1).Value.ToString(),
-                                MachineNumber = row.Cell(2).Value.ToString(),
-                                PLC = row.Cell(3).Value.ToString(),
-                                Station = row.Cell(4).Value.ToString(),
-                                AssetCode = row.Cell(5).Value.ToString(),
-                                ToolNumber = row.Cell(6).Value.ToString(),
-                                TypeId = tooltreeType?.Id ?? 0,
-                                Description = row.Cell(8).Value.ToString(),
-                                AssetNumber = row.Cell(9).Value.ToString(),
-                                CommentLinebuilder = row.Cell(10).Value.ToString(),
-                                CommentVolvo = row.Cell(11).Value.ToString()
-                            };
-                        toolTreeData.Add(toolTree);                        
+                    var toolTree = new TooltreeData
+                        {
+                            PLCStationEquipment = row.Cell(1).Value.ToString(),
+                            MachineNumber = row.Cell(2).Value.ToString(),
+                            PLC = row.Cell(3).Value.ToString(),
+                            Station = row.Cell(4).Value.ToString(),
+                            AssetCode = row.Cell(5).Value.ToString(),
+                            ToolNumber = row.Cell(6).Value.ToString(),
+                            TypeId = tooltreeType?.Id ?? 0,
+                            Type = tooltreeType,
+                            Description = row.Cell(8).Value.ToString(),
+                            AssetNumber = row.Cell(9).Value.ToString(),
+                            CommentLinebuilder = row.Cell(10).Value.ToString(),
+                            CommentVolvo = row.Cell(11).Value.ToString()
+                        };
+                    toolTreeData.Add(toolTree);
                     }
-
                 }
 
                 await context.TooltreeDatas.AddRangeAsync(toolTreeData);
