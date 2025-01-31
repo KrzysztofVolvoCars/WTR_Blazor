@@ -1,0 +1,68 @@
+﻿@inject IDbContextFactory<ApplicationDbContext> DbFactory
+@inject IJSRuntime JS
+@inject ISnackbar Snackbar
+
+<MudDialog>
+    <DialogContent>
+        <MudTable Items="@files" Dense="true" Hover="true" Bordered="true">
+            <HeaderContent>
+                <MudTh>File Name</MudTh>
+                <MudTh>Original Name</MudTh>
+                <MudTh>Created</MudTh>
+                <MudTh>Actions</MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd DataLabel="File Name">@context.Name</MudTd>
+                <MudTd DataLabel="Original Name">@context.OrginalName</MudTd>
+                <MudTd DataLabel="Created">@context.Created.ToShortDateString()</MudTd>
+                <MudTd DataLabel="Actions">
+                    <MudIconButton Icon="@Icons.Material.Filled.Download" Color="Color.Primary" OnClick="@(() => DownloadFile(context))" />
+                    <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Error" OnClick="@(() => DeleteFile(context))" />
+                </MudTd>
+            </RowTemplate>
+        </MudTable>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Close</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] IMudDialogInstance MudDialog { get; set; }
+    [Parameter] public int ProjectId { get; set; }
+
+    private List<TooltreeFile> files = new List<TooltreeFile>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadFiles();
+    }
+
+    private async Task LoadFiles()
+    {
+        using var context = await DbFactory.CreateDbContextAsync();
+        files = await context.TooltreeFiles.Where(f => f.ProjectId == ProjectId).ToListAsync();
+    }
+
+    private async Task DownloadFile(TooltreeFile file)
+    {
+        var fileStream = new MemoryStream(file.FileData);
+        var fileName = file.OrginalName;
+        await JS.InvokeVoidAsync("downloadFileFromStream", fileName, new DotNetStreamReference(fileStream));
+    }
+
+    private async Task DeleteFile(TooltreeFile file)
+    {
+        var isConfirmed = await JS.InvokeAsync<bool>("confirm", "Are you sure you want to delete this file?");
+        if (isConfirmed)
+        {
+            using var context = await DbFactory.CreateDbContextAsync();
+            context.TooltreeFiles.Remove(file);
+            await context.SaveChangesAsync();
+            await LoadFiles();
+            Snackbar.Add("File deleted successfully", Severity.Success);
+        }
+    }
+
+    private void Cancel() => MudDialog.Cancel();
+}

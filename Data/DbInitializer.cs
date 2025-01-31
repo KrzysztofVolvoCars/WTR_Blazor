@@ -129,10 +129,10 @@ public static class DbInitializer
         {
             var tooltreeType = new List<TooltreeType>
         {
-            new TooltreeType { Id = 1, Code = "N", Description = "New equipment (new machinenumber)", IsActive = true },
-            new TooltreeType { Id = 2, Code = "M", Description = "Modification (or rebuild) of existing equipment", IsActive = true},
-            new TooltreeType { Id = 3, Code = "T", Description = "Transfered / moved existing equipment to other location", IsActive = true},
-            new TooltreeType { Id = 4, Code = "C", Description = "During project decided to cancel machine", IsActive = true }
+            new TooltreeType {  Code = "N", Description = "New equipment (new machinenumber)", IsActive = true },
+            new TooltreeType {  Code = "M", Description = "Modification (or rebuild) of existing equipment", IsActive = true},
+            new TooltreeType {  Code = "T", Description = "Transfered / moved existing equipment to other location", IsActive = true},
+            new TooltreeType {  Code = "C", Description = "During project decided to cancel machine", IsActive = true }
         };
 
             await context.TooltreeTypes.AddRangeAsync(tooltreeType);

@@ -1,11 +1,16 @@
-﻿namespace WTR_Blazor.Models;
+﻿using System.ComponentModel.DataAnnotations.Schema;
+using System.ComponentModel.DataAnnotations;
+
+namespace WTR_Blazor.Models;
 
 public class Tooltree
 {
+    [Key]
     public int Id { get; set; }
-    public int TooltreeDataId { get; set; }
-    public virtual TooltreeData? TooltreeData { get; set; }
-    public int TooltreeFileId { get; set; }
-    public virtual TooltreeFile TooltreeFile { get; set; }
+    public int ProjectId { get; set; }
+    public virtual Project Project { get; set; }
+    public virtual TooltreeData TooltreeData { get; set; }
+    public virtual List<TooltreeFile> TooltreeFiles { get; set; } = new();
     public bool IsDone { get; set; } = false;
 }
+

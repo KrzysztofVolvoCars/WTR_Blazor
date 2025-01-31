@@ -1,9 +1,12 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace WTR_Blazor.Models;
 
 public class TooltreeData
 {
+    [Key]
+    
     public int Id { get; set; }
     [Required]
     public string PLCStationEquipment { get; set; } = string.Empty;
@@ -18,6 +21,7 @@ public class TooltreeData
     [Required]
     public string ToolNumber { get; set; } = string.Empty;
     public int TypeId { get; set; }
+    [Required]
     public virtual TooltreeType Type { get; set; }
     [Required]
     public string Description { get; set; } = string.Empty;
@@ -25,4 +29,6 @@ public class TooltreeData
     public string AssetNumber { get; set; } = string.Empty;
     public string? CommentLinebuilder { get; set; } = string.Empty;
     public string? CommentVolvo { get; set; } = string.Empty;
+    public int TooltreeId { get; set; }
+    public virtual Tooltree Tooltree { get; set; }
 }

@@ -1,9 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using MudBlazor.Charts;
-using WTR_Blazor.Components.Pages;
 using WTR_Blazor.Models;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace WTR_Blazor.Data;
 
@@ -11,7 +7,6 @@ public class ApplicationDbContext : DbContext
 {
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
         : base(options) { }
-
 
     public DbSet<Project> Projects { get; set; }
     public DbSet<Employee> Employees { get; set; }
@@ -53,12 +48,6 @@ public class ApplicationDbContext : DbContext
             .OnDelete(DeleteBehavior.Restrict);
 
         modelBuilder.Entity<Project>()
-            .HasOne(p => p.Tooltree)
-            .WithMany()
-            .HasForeignKey(p => p.TooltreeId)
-            .OnDelete(DeleteBehavior.Cascade);
-
-        modelBuilder.Entity<Project>()
             .HasOne(p => p.ProjectType)
             .WithMany()
             .HasForeignKey(p => p.ProjectTypeId)
@@ -68,13 +57,31 @@ public class ApplicationDbContext : DbContext
             .HasIndex(e => e.Email)
             .IsUnique();
 
+        modelBuilder.Entity<Tooltree>()
+            .HasOne(t => t.Project)
+            .WithOne(p => p.Tooltree)
+            .HasForeignKey<Tooltree>(t => t.ProjectId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<Tooltree>()
+            .HasOne(t => t.TooltreeData)
+            .WithOne(td => td.Tooltree)
+            .HasForeignKey<TooltreeData>(td => td.TooltreeId);
+
         modelBuilder.Entity<TooltreeFile>()
             .HasOne(tf => tf.Project)
             .WithMany(p => p.TooltreeFiles)
             .HasForeignKey(tf => tf.ProjectId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<TooltreeFile>()
+            .HasOne(tf => tf.Tooltree)
+            .WithMany(t => t.TooltreeFiles)
+            .HasForeignKey(tf => tf.TooltreeId)
             .OnDelete(DeleteBehavior.Cascade);
     }
 }
+
 
 //dotnet ef migrations add InitialCreate
 //dotnet ef database update

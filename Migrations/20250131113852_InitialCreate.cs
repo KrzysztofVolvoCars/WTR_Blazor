@@ -118,35 +118,6 @@ namespace WTR_Blazor.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "TooltreeDatas",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    PLCStationEquipment = table.Column<string>(type: "TEXT", nullable: false),
-                    MachineNumber = table.Column<string>(type: "TEXT", nullable: false),
-                    PLC = table.Column<string>(type: "TEXT", nullable: false),
-                    Station = table.Column<string>(type: "TEXT", nullable: false),
-                    AssetCode = table.Column<string>(type: "TEXT", nullable: false),
-                    ToolNumber = table.Column<string>(type: "TEXT", nullable: false),
-                    TypeId = table.Column<int>(type: "INTEGER", nullable: false),
-                    Description = table.Column<string>(type: "TEXT", nullable: false),
-                    AssetNumber = table.Column<string>(type: "TEXT", nullable: false),
-                    CommentLinebuilder = table.Column<string>(type: "TEXT", nullable: true),
-                    CommentVolvo = table.Column<string>(type: "TEXT", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_TooltreeDatas", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_TooltreeDatas_TooltreeTypes_TypeId",
-                        column: x => x.TypeId,
-                        principalTable: "TooltreeTypes",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Projects",
                 columns: table => new
                 {
@@ -201,6 +172,62 @@ namespace WTR_Blazor.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Tooltrees",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    ProjectId = table.Column<int>(type: "INTEGER", nullable: false),
+                    IsDone = table.Column<bool>(type: "INTEGER", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Tooltrees", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Tooltrees_Projects_ProjectId",
+                        column: x => x.ProjectId,
+                        principalTable: "Projects",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "TooltreeDatas",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    PLCStationEquipment = table.Column<string>(type: "TEXT", nullable: false),
+                    MachineNumber = table.Column<string>(type: "TEXT", nullable: false),
+                    PLC = table.Column<string>(type: "TEXT", nullable: false),
+                    Station = table.Column<string>(type: "TEXT", nullable: false),
+                    AssetCode = table.Column<string>(type: "TEXT", nullable: false),
+                    ToolNumber = table.Column<string>(type: "TEXT", nullable: false),
+                    TypeId = table.Column<int>(type: "INTEGER", nullable: false),
+                    Description = table.Column<string>(type: "TEXT", nullable: false),
+                    AssetNumber = table.Column<string>(type: "TEXT", nullable: false),
+                    CommentLinebuilder = table.Column<string>(type: "TEXT", nullable: true),
+                    CommentVolvo = table.Column<string>(type: "TEXT", nullable: true),
+                    TooltreeId = table.Column<int>(type: "INTEGER", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_TooltreeDatas", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_TooltreeDatas_TooltreeTypes_TypeId",
+                        column: x => x.TypeId,
+                        principalTable: "TooltreeTypes",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_TooltreeDatas_Tooltrees_TooltreeId",
+                        column: x => x.TooltreeId,
+                        principalTable: "Tooltrees",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "TooltreeFiles",
                 columns: table => new
                 {
@@ -210,7 +237,9 @@ namespace WTR_Blazor.Migrations
                     FileData = table.Column<byte[]>(type: "BLOB", nullable: false),
                     FileSize = table.Column<long>(type: "INTEGER", nullable: false),
                     Created = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    ProjectId = table.Column<int>(type: "INTEGER", nullable: false)
+                    OrginalName = table.Column<string>(type: "TEXT", nullable: false),
+                    ProjectId = table.Column<int>(type: "INTEGER", nullable: false),
+                    TooltreeId = table.Column<int>(type: "INTEGER", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -220,31 +249,11 @@ namespace WTR_Blazor.Migrations
                         column: x => x.ProjectId,
                         principalTable: "Projects",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Tooltrees",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    TooltreeDataId = table.Column<int>(type: "INTEGER", nullable: false),
-                    TooltreeFileId = table.Column<int>(type: "INTEGER", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Tooltrees", x => x.Id);
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_Tooltrees_TooltreeDatas_TooltreeDataId",
-                        column: x => x.TooltreeDataId,
-                        principalTable: "TooltreeDatas",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_Tooltrees_TooltreeFiles_TooltreeFileId",
-                        column: x => x.TooltreeFileId,
-                        principalTable: "TooltreeFiles",
+                        name: "FK_TooltreeFiles_Tooltrees_TooltreeId",
+                        column: x => x.TooltreeId,
+                        principalTable: "Tooltrees",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -291,9 +300,10 @@ namespace WTR_Blazor.Migrations
                 column: "SupplierId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Projects_TooltreeId",
-                table: "Projects",
-                column: "TooltreeId");
+                name: "IX_TooltreeDatas_TooltreeId",
+                table: "TooltreeDatas",
+                column: "TooltreeId",
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_TooltreeDatas_TypeId",
@@ -306,64 +316,34 @@ namespace WTR_Blazor.Migrations
                 column: "ProjectId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Tooltrees_TooltreeDataId",
-                table: "Tooltrees",
-                column: "TooltreeDataId");
+                name: "IX_TooltreeFiles_TooltreeId",
+                table: "TooltreeFiles",
+                column: "TooltreeId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Tooltrees_TooltreeFileId",
+                name: "IX_Tooltrees_ProjectId",
                 table: "Tooltrees",
-                column: "TooltreeFileId");
-
-            migrationBuilder.AddForeignKey(
-                name: "FK_Projects_Tooltrees_TooltreeId",
-                table: "Projects",
-                column: "TooltreeId",
-                principalTable: "Tooltrees",
-                principalColumn: "Id",
-                onDelete: ReferentialAction.Cascade);
+                column: "ProjectId",
+                unique: true);
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropForeignKey(
-                name: "FK_Employees_Companies_CompanyId",
-                table: "Employees");
-
-            migrationBuilder.DropForeignKey(
-                name: "FK_Projects_Companies_SupplierId",
-                table: "Projects");
-
-            migrationBuilder.DropForeignKey(
-                name: "FK_Employees_EmployeePositions_PositionId",
-                table: "Employees");
-
-            migrationBuilder.DropForeignKey(
-                name: "FK_Projects_Employees_EngineerId",
-                table: "Projects");
-
-            migrationBuilder.DropForeignKey(
-                name: "FK_Projects_Employees_RMResponsibleId",
-                table: "Projects");
-
-            migrationBuilder.DropForeignKey(
-                name: "FK_Projects_ProjectPhases_ProjectPhaseId",
-                table: "Projects");
-
-            migrationBuilder.DropForeignKey(
-                name: "FK_Projects_ProjectTypes_ProjectTypeId",
-                table: "Projects");
-
-            migrationBuilder.DropForeignKey(
-                name: "FK_Projects_Tooltrees_TooltreeId",
-                table: "Projects");
+            migrationBuilder.DropTable(
+                name: "TooltreeDatas");
 
             migrationBuilder.DropTable(
-                name: "Companies");
+                name: "TooltreeFiles");
 
             migrationBuilder.DropTable(
-                name: "EmployeePositions");
+                name: "TooltreeTypes");
+
+            migrationBuilder.DropTable(
+                name: "Tooltrees");
+
+            migrationBuilder.DropTable(
+                name: "Projects");
 
             migrationBuilder.DropTable(
                 name: "Employees");
@@ -375,19 +355,10 @@ namespace WTR_Blazor.Migrations
                 name: "ProjectTypes");
 
             migrationBuilder.DropTable(
-                name: "Tooltrees");
+                name: "Companies");
 
             migrationBuilder.DropTable(
-                name: "TooltreeDatas");
-
-            migrationBuilder.DropTable(
-                name: "TooltreeFiles");
-
-            migrationBuilder.DropTable(
-                name: "TooltreeTypes");
-
-            migrationBuilder.DropTable(
-                name: "Projects");
+                name: "EmployeePositions");
         }
     }
 }

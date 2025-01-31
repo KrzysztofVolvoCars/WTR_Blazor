@@ -11,7 +11,7 @@ using WTR_Blazor.Data;
 namespace WTR_Blazor.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250130134735_InitialCreate")]
+    [Migration("20250131113852_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -164,8 +164,6 @@ namespace WTR_Blazor.Migrations
 
                     b.HasIndex("SupplierId");
 
-                    b.HasIndex("TooltreeId");
-
                     b.ToTable("Projects");
                 });
 
@@ -221,17 +219,16 @@ namespace WTR_Blazor.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<int>("TooltreeDataId")
+                    b.Property<bool>("IsDone")
                         .HasColumnType("INTEGER");
 
-                    b.Property<int>("TooltreeFileId")
+                    b.Property<int>("ProjectId")
                         .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("TooltreeDataId");
-
-                    b.HasIndex("TooltreeFileId");
+                    b.HasIndex("ProjectId")
+                        .IsUnique();
 
                     b.ToTable("Tooltrees");
                 });
@@ -280,10 +277,16 @@ namespace WTR_Blazor.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
+                    b.Property<int>("TooltreeId")
+                        .HasColumnType("INTEGER");
+
                     b.Property<int>("TypeId")
                         .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("TooltreeId")
+                        .IsUnique();
 
                     b.HasIndex("TypeId");
 
@@ -310,12 +313,21 @@ namespace WTR_Blazor.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("OrginalName")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
                     b.Property<int>("ProjectId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("TooltreeId")
                         .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
 
                     b.HasIndex("ProjectId");
+
+                    b.HasIndex("TooltreeId");
 
                     b.ToTable("TooltreeFiles");
                 });
@@ -345,7 +357,7 @@ namespace WTR_Blazor.Migrations
             modelBuilder.Entity("WTR_Blazor.Models.Employee", b =>
                 {
                     b.HasOne("WTR_Blazor.Models.Company", "Company")
-                        .WithMany("Employees")
+                        .WithMany()
                         .HasForeignKey("CompanyId");
 
                     b.HasOne("WTR_Blazor.Models.EmployeePosition", "Position")
@@ -384,11 +396,6 @@ namespace WTR_Blazor.Migrations
                         .HasForeignKey("SupplierId")
                         .OnDelete(DeleteBehavior.Restrict);
 
-                    b.HasOne("WTR_Blazor.Models.Tooltree", "Tooltree")
-                        .WithMany()
-                        .HasForeignKey("TooltreeId")
-                        .OnDelete(DeleteBehavior.Cascade);
-
                     b.Navigation("Engineer");
 
                     b.Navigation("ProjectPhase");
@@ -398,36 +405,34 @@ namespace WTR_Blazor.Migrations
                     b.Navigation("RMResponsible");
 
                     b.Navigation("Supplier");
-
-                    b.Navigation("Tooltree");
                 });
 
             modelBuilder.Entity("WTR_Blazor.Models.Tooltree", b =>
                 {
-                    b.HasOne("WTR_Blazor.Models.TooltreeData", "TooltreeData")
-                        .WithMany()
-                        .HasForeignKey("TooltreeDataId")
+                    b.HasOne("WTR_Blazor.Models.Project", "Project")
+                        .WithOne("Tooltree")
+                        .HasForeignKey("WTR_Blazor.Models.Tooltree", "ProjectId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("WTR_Blazor.Models.TooltreeFile", "TooltreeFile")
-                        .WithMany()
-                        .HasForeignKey("TooltreeFileId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("TooltreeData");
-
-                    b.Navigation("TooltreeFile");
+                    b.Navigation("Project");
                 });
 
             modelBuilder.Entity("WTR_Blazor.Models.TooltreeData", b =>
                 {
+                    b.HasOne("WTR_Blazor.Models.Tooltree", "Tooltree")
+                        .WithOne("TooltreeData")
+                        .HasForeignKey("WTR_Blazor.Models.TooltreeData", "TooltreeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("WTR_Blazor.Models.TooltreeType", "Type")
                         .WithMany()
                         .HasForeignKey("TypeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Tooltree");
 
                     b.Navigation("Type");
                 });
@@ -437,19 +442,32 @@ namespace WTR_Blazor.Migrations
                     b.HasOne("WTR_Blazor.Models.Project", "Project")
                         .WithMany("TooltreeFiles")
                         .HasForeignKey("ProjectId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("WTR_Blazor.Models.Tooltree", "Tooltree")
+                        .WithMany("TooltreeFiles")
+                        .HasForeignKey("TooltreeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Project");
-                });
 
-            modelBuilder.Entity("WTR_Blazor.Models.Company", b =>
-                {
-                    b.Navigation("Employees");
+                    b.Navigation("Tooltree");
                 });
 
             modelBuilder.Entity("WTR_Blazor.Models.Project", b =>
                 {
+                    b.Navigation("Tooltree");
+
+                    b.Navigation("TooltreeFiles");
+                });
+
+            modelBuilder.Entity("WTR_Blazor.Models.Tooltree", b =>
+                {
+                    b.Navigation("TooltreeData")
+                        .IsRequired();
+
                     b.Navigation("TooltreeFiles");
                 });
 #pragma warning restore 612, 618

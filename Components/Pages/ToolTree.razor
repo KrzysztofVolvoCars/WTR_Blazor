@@ -1,59 +1,29 @@
 ﻿@page "/tooltree/{ProjectId:int}"
-
 @inject IDbContextFactory<ApplicationDbContext> DbFactory
 @inject NavigationManager NavigationManager
 @inject IJSRuntime JS
 @inject ISnackbar Snackbar
+@inject IDialogService DialogService
 @using Microsoft.AspNetCore.Components.Forms
 
 <PageTitle>@HeaderTitle</PageTitle>
 
-
-<style>
-    .dark-overlay {
-    background-color: rgba(0, 0, 0, 0.8) !important;
-    }
-</style>
-
-<MudOverlay Visible="@_isProcessing"
-DarkBackground="true"
-Absolute="false"
-ZIndex="9"
-Class="dark-overlay">
-    <MudContainer MaxWidth="MaxWidth.Small" Style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 10;height: 200px;">
-        <MudPaper Class="d-flex flex-column align-center pa-8" Style="background: rgba(255, 255, 255, 0.95); border-radius: 8px;height: 100%;">
-            <MudProgressCircular Color="Color.Primary" Indeterminate="true" Size="Size.Large" />
-            <MudText Typo="Typo.h6" Class="mt-4" Color="Color.Primary">Please wait...</MudText>
-
-            <LottiePlayer
-            Source="https://assets2.lottiefiles.com/packages/lf20_xyadoh9h.json"
-            Speed="1"
-            Loop="true"
-            AutoPlay="true"
-            Style="width: 300px; height: 300px;"
-            />
-        </MudPaper>
-    </MudContainer>
-</MudOverlay>
-
-
 <MudContainer Fixed="true" Class="mt-4">
     @if (project != null)
     {
-        <MudContainer Fixed="true" Class="mt-4">
-            <MudGrid>
-                <MudItem xs="12">
-                    <div class="d-flex justify-space-between align-center">
-                        <MudText Typo="Typo.h4">@HeaderTitle</MudText>
-                        <MudButton OnClick="GoBack"
-                        StartIcon="@Icons.Material.Filled.ArrowBack"
-                        Color="Color.Default">
+        <MudGrid>
+            <MudItem xs="12">
+                <div class="d-flex justify-space-between align-center">
+                    <MudText Typo="Typo.h4">@HeaderTitle</MudText>
+                    <div>
+                        <MudIconButton Icon="@Icons.Material.Filled.History" Color="Color.Primary" OnClick="ShowFileHistory" />
+                        <MudButton OnClick="GoBack" StartIcon="@Icons.Material.Filled.ArrowBack" Color="Color.Default">
                             Back to Project
                         </MudButton>
                     </div>
-                </MudItem>
-            </MudGrid>
-        </MudContainer>
+                </div>
+            </MudItem>
+        </MudGrid>
 
         <MudPaper Elevation="3" Class="mt-4 pa-4">
             <MudText Typo="Typo.body1" Class="text-center">
@@ -61,61 +31,67 @@ Class="dark-overlay">
             </MudText>
             <MudDivider Class="my-3" />
             <MudGrid>
-                <MudItem xs="6" Class="d-flex justify-center">
+                <MudItem xs="4" Class="d-flex justify-center">
                     <MudButton @onclick="DownloadExcelFile" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Download">
-                        Download Edited File
+                        Download Template
                     </MudButton>
                 </MudItem>
-                <MudItem xs="6" Class="d-flex justify-center">
+                <MudItem xs="4" Class="d-flex justify-center">
                     <MudButton Color="Color.Secondary" StartIcon="@Icons.Material.Filled.Upload" OnClick="TriggerFileUpload">
                         Upload File
                     </MudButton>
                     <InputFile OnChange="HandleFileSelected" class="d-none" @ref="fileInput" />
                 </MudItem>
+                <MudItem xs="4" Class="d-flex justify-center">
+                    <MudButton Color="Color.Success" OnClick="SaveData" Disabled="@(!tempTooltreeData.Any())">
+                        Save Data
+                    </MudButton>
+                </MudItem>
             </MudGrid>
         </MudPaper>
+
+        @if (tempTooltreeData.Any())
+        {
+            <MudPaper Elevation="3" Class="mt-4 pa-4">
+                <MudDataGrid Items="@tempTooltreeData" Dense="true" Hover="true" Bordered="true" Striped="true">
+                    <Columns>
+                        <PropertyColumn Property="x => x.PLCStationEquipment" Title="PLC Station Equipment" />
+                        <PropertyColumn Property="x => x.MachineNumber" Title="Machine Number" />
+                        <PropertyColumn Property="x => x.PLC" Title="PLC" />
+                        <PropertyColumn Property="x => x.Station" Title="Station" />
+                        <PropertyColumn Property="x => x.AssetCode" Title="Asset Code" />
+                        <PropertyColumn Property="x => x.ToolNumber" Title="Tool Number" />
+                        <TemplateColumn Title="Type">
+                            <CellTemplate>
+                                <MudTooltip Text="@(context.Item.Type?.Description ?? "No description")">
+                                    <MudText>@(context.Item.Type?.Code ?? "N/A")</MudText>
+                                </MudTooltip>
+                            </CellTemplate>
+                        </TemplateColumn>
+                        <PropertyColumn Property="x => x.Description" Title="Description" />
+                        <PropertyColumn Property="x => x.AssetNumber" Title="Asset Number" />
+                        <PropertyColumn Property="x => x.CommentLinebuilder" Title="Comment Linebuilder" />
+                        <PropertyColumn Property="x => x.CommentVolvo" Title="Comment Volvo" />
+                    </Columns>
+                </MudDataGrid>
+            </MudPaper>
+        }
     }
-    @if (toolTreeData.Any())
-    {<MudPaper Elevation="3" Class="mt-4 pa-4">
-        <MudDataGrid Items="@toolTreeData" Dense="true" Hover="true" Bordered="true" Striped="true">
-            <Columns>
-                <PropertyColumn Property="x => x.PLCStationEquipment" Title="PLC Station Equipment" />
-                <PropertyColumn Property="x => x.MachineNumber" Title="Machine Number" />
-                <PropertyColumn Property="x => x.PLC" Title="PLC" />
-                <PropertyColumn Property="x => x.Station" Title="Station" />
-                <PropertyColumn Property="x => x.AssetCode" Title="Asset Code" />
-                <PropertyColumn Property="x => x.ToolNumber" Title="Tool Number" />
-                <!-- New column for TooltreeType.Code with tooltip -->
-                <TemplateColumn Title="Type">
-                    <CellTemplate>
-                        <MudTooltip Text="@(context.Item.Type?.Description ?? "No description")">
-                            <MudText>@(context.Item.Type?.Code ?? "N/A")</MudText>
-                        </MudTooltip>
-                    </CellTemplate>
-                </TemplateColumn>
-                <PropertyColumn Property="x => x.Description" Title="Description" />
-                <PropertyColumn Property="x => x.AssetNumber" Title="Asset Number" />
-                <PropertyColumn Property="x => x.CommentLinebuilder" Title="Comment Linebuilder" />
-                <PropertyColumn Property="x => x.CommentVolvo" Title="Comment Volvo" />
-            </Columns>
-        </MudDataGrid>
-        </MudPaper>
-    }
-  
 </MudContainer>
 
-@code {
-    [Parameter]
-    public int ProjectId { get; set; }
+<MudOverlay Visible="@_isProcessing" DarkBackground="true" Absolute="false" ZIndex="9">
+    <MudProgressCircular Color="Color.Primary" Indeterminate="true" Size="Size.Large" />
+</MudOverlay>
 
+@code {
+    [Parameter] public int ProjectId { get; set; }
     private string HeaderTitle { get; set; }
     private Project project;
     private InputFile fileInput;
-
     private bool _isProcessing;
-
-    private List<TooltreeData> toolTreeData = new List<TooltreeData>();
-
+    private List<TooltreeData> tempTooltreeData = new List<TooltreeData>();
+    private byte[] uploadedFileData;
+    private string uploadedFileName;
 
     protected override async Task OnInitializedAsync()
     {
@@ -126,78 +102,68 @@ Class="dark-overlay">
     {
         using var context = await DbFactory.CreateDbContextAsync();
         project = await context.Projects
-            .Include(p => p.Engineer)
-            .Include(p => p.RMResponsible)
-            .Include(p => p.Supplier)
-            .Include(p => p.ProjectPhase)
+            .Select(p => new Project
+                {
+                    Id = p.Id,
+                    ECNumber = p.ECNumber,
+                    ProjectName = p.ProjectName,
+                    Supplier = new Company { Name = p.Supplier.Name }
+                })
             .FirstOrDefaultAsync(p => p.Id == ProjectId);
-
-        HeaderTitle = $"{project.ECNumber} - {project.ProjectName} - ToolTree";
 
         if (project == null)
         {
             Snackbar.Add("Project not found", Severity.Error);
             NavigationManager.NavigateTo("/projects");
+            return;
         }
+
+        HeaderTitle = $"{project.ECNumber} - {project.ProjectName} - ToolTree";
     }
 
-
-    private void GoBack()
-    {
-        NavigationManager.NavigateTo($"/project-details/{ProjectId}");
-    }
+    private void GoBack() => NavigationManager.NavigateTo($"/project-details/{ProjectId}");
 
     public async Task DownloadExcelFile()
     {
         _isProcessing = true;
         StateHasChanged();
-        // dealy 2000ms
-        //TODO: Delete it!
-        await Task.Delay(2000);
         try
         {
             var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "Excels", "Tooltree.xlsm");
+            if (!File.Exists(filePath))
+            {
+                Snackbar.Add("Template file not found", Severity.Error);
+                return;
+            }
 
             await using var stream = new MemoryStream();
-
             using (var workbook = new XLWorkbook(filePath))
             {
                 var worksheet = workbook.Worksheets.FirstOrDefault();
                 if (worksheet != null)
                 {
-                    // Próba wyłączenia autofiltrów
-                    if (worksheet.AutoFilter != null)
-                    {
-                        worksheet.AutoFilter.Clear();
-                    }
-
+                    worksheet.AutoFilter?.Clear();
                     worksheet.Cell("C2").Value = project.Supplier.Name;
-                    worksheet.Cell("C4").Value = project.ECNumber + "-" +project.ProjectName;
+                    worksheet.Cell("C4").Value = $"{project.ECNumber}-{project.ProjectName}";
 
-                    string fileName = "";
-                    // Spróbujmy zapisać z określonymi opcjami
                     var saveOptions = new SaveOptions
-                        {
-                            ValidatePackage = false,
-                            EvaluateFormulasBeforeSaving = false,
-                            GenerateCalculationChain = false
-                        };
-
+                    {
+                        ValidatePackage = false,
+                        EvaluateFormulasBeforeSaving = false,
+                        GenerateCalculationChain = false
+                    };
                     workbook.SaveAs(stream, saveOptions);
                 }
             }
 
             stream.Position = 0;
             var streamRef = new DotNetStreamReference(stream);
-
-            await JS.InvokeVoidAsync("downloadFileFromStream", "Tooltree-" + project.ECNumber + "-" + project.ProjectName+".xlsm", streamRef);
+            await JS.InvokeVoidAsync("downloadFileFromStream", $"Tooltree-{project.ECNumber}-{project.ProjectName}.xlsm", streamRef);
         }
         catch (Exception ex)
         {
-            // Tutaj lepiej użyć właściwego loggera
-            //_logger.LogError(ex, "Błąd podczas pobierania pliku Excel");
             Console.WriteLine($"Error downloading file: {ex}");
-            throw; // Pozwól na obsługę błędu na wyższym poziomie
+            Snackbar.Add("Error downloading file", Severity.Error);
         }
         finally
         {
@@ -206,14 +172,10 @@ Class="dark-overlay">
         }
     }
 
-    private async Task TriggerFileUpload()
-    {
-        await JS.InvokeVoidAsync("click", fileInput.Element);
-    }
+    private async Task TriggerFileUpload() => await JS.InvokeVoidAsync("click", fileInput.Element);
 
     private async Task HandleFileSelected(InputFileChangeEventArgs e)
     {
-
         try
         {
             var file = e.File;
@@ -223,7 +185,6 @@ Class="dark-overlay">
                 return;
             }
 
-            // Sprawdzenie rozszerzenia pliku
             var extension = Path.GetExtension(file.Name).ToLower();
             if (extension != ".xlsx" && extension != ".xlsm")
             {
@@ -231,43 +192,30 @@ Class="dark-overlay">
                 return;
             }
 
-            // Sprawdzenie rozmiaru pliku (np. max 10MB)
             if (file.Size > 10 * 1024 * 1024)
             {
                 Snackbar.Add("File is too large. Maximum size is 10MB", Severity.Warning);
                 return;
             }
 
-            // Wczytanie pliku do pamięci
             using var stream = file.OpenReadStream();
             using var memoryStream = new MemoryStream();
             await stream.CopyToAsync(memoryStream);
             memoryStream.Position = 0;
 
-            // Ścieżka do zapisania pliku
-            var uploadsPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "Excels", "Uploads");
-            Directory.CreateDirectory(uploadsPath); // Utworzenie katalogu jeśli nie istnieje
+            uploadedFileData = memoryStream.ToArray();
+            uploadedFileName = file.Name;
 
-            var fileName = $"Tooltree-{project.ECNumber}-{project.ProjectName}{extension}";
-            var filePath = Path.Combine(uploadsPath, fileName);
-
-            // Zapisanie pliku
-            await File.WriteAllBytesAsync(filePath, memoryStream.ToArray());
-
-            memoryStream.Position = 0;
             await ProcessExcelFile(memoryStream);
-
-            Snackbar.Add("File uploaded successfully", Severity.Success);
         }
         catch (Exception ex)
         {
             Console.WriteLine($"Error uploading file: {ex}");
             Snackbar.Add("Error uploading file", Severity.Error);
         }
-
     }
 
-    private async Task ProcessExcelFile(Stream stream)
+    private async Task ProcessExcelFile(MemoryStream stream)
     {
         _isProcessing = true;
         StateHasChanged();
@@ -277,50 +225,37 @@ Class="dark-overlay">
             var tooltreeTypes = await context.TooltreeTypes.ToListAsync();
 
             using var workbook = new XLWorkbook(stream);
-            var worksheet = workbook.Worksheets.FirstOrDefault();
-            if (worksheet != null)
+            var worksheet = workbook.Worksheets.FirstOrDefault() ?? throw new InvalidOperationException("No worksheet found in the Excel file.");
+
+            var lastRow = worksheet.LastRowUsed().RowNumber();
+            var range = worksheet.Range("B7:L" + lastRow);
+            var table = range.AsTable();
+
+            tempTooltreeData.Clear();
+            foreach (var row in table.DataRange.Rows().Where(r => !string.IsNullOrEmpty(r.Cell(3).Value.ToString())))
             {
-                var lastRow = worksheet.LastRowUsed().RowNumber();
-                var range = worksheet.Range("B7:L" + lastRow);
-                var table = range.AsTable();
+                var typeCode = row.Cell(7).Value.ToString();
+                var tooltreeType = tooltreeTypes.FirstOrDefault(t => t.Code == typeCode);
 
-                toolTreeData.Clear();
-                foreach (var row in table.DataRange.Rows())
-                {
-                    if (string.IsNullOrEmpty(row.Cell(3).Value.ToString()))
+                var tooltreeData = new TooltreeData
                     {
-
-                    }
-                    else
-                    {
-                        
-                    var typeCode = row.Cell(7).Value.ToString();
-                    var tooltreeType = tooltreeTypes.FirstOrDefault(t => t.Code == typeCode);
-
-                    var toolTree = new TooltreeData
-                        {
-                            PLCStationEquipment = row.Cell(1).Value.ToString(),
-                            MachineNumber = row.Cell(2).Value.ToString(),
-                            PLC = row.Cell(3).Value.ToString(),
-                            Station = row.Cell(4).Value.ToString(),
-                            AssetCode = row.Cell(5).Value.ToString(),
-                            ToolNumber = row.Cell(6).Value.ToString(),
-                            TypeId = tooltreeType?.Id ?? 0,
-                            Type = tooltreeType,
-                            Description = row.Cell(8).Value.ToString(),
-                            AssetNumber = row.Cell(9).Value.ToString(),
-                            CommentLinebuilder = row.Cell(10).Value.ToString(),
-                            CommentVolvo = row.Cell(11).Value.ToString()
-                        };
-                    toolTreeData.Add(toolTree);
-                    }
-                }
-
-                await context.TooltreeDatas.AddRangeAsync(toolTreeData);
-                await context.SaveChangesAsync();
-
-                Snackbar.Add("File processed successfully", Severity.Success);
+                        PLCStationEquipment = row.Cell(1).Value.ToString(),
+                        MachineNumber = row.Cell(2).Value.ToString(),
+                        PLC = row.Cell(3).Value.ToString(),
+                        Station = row.Cell(4).Value.ToString(),
+                        AssetCode = row.Cell(5).Value.ToString(),
+                        ToolNumber = row.Cell(6).Value.ToString(),
+                        TypeId = tooltreeType?.Id ?? 0,
+                        Type = tooltreeType,
+                        Description = row.Cell(8).Value.ToString(),
+                        AssetNumber = row.Cell(9).Value.ToString(),
+                        CommentLinebuilder = row.Cell(10).Value.ToString(),
+                        CommentVolvo = row.Cell(11).Value.ToString()
+                    };
+                tempTooltreeData.Add(tooltreeData);
             }
+
+            Snackbar.Add("File processed successfully", Severity.Success);
         }
         catch (Exception ex)
         {
@@ -334,5 +269,101 @@ Class="dark-overlay">
         }
     }
 
+
+
+    private async Task SaveData()
+    {
+        var options = new DialogOptions { CloseOnEscapeKey = true };
+        var result = await DialogService.ShowMessageBox(
+            "Confirm",
+            "This action will delete all existing data for this project. Are you sure you want to proceed?",
+            yesText: "Yes", cancelText: "No", options: options);
+
+        if (result == true)
+        {
+            _isProcessing = true;
+            StateHasChanged();
+
+            try
+            {
+                using var context = await DbFactory.CreateDbContextAsync();
+
+                // Usuwanie istniejących danych dla tego projektu
+                var existingData = await context.TooltreeDatas
+                    .Where(t => t.Tooltree.ProjectId == ProjectId)
+                    .ToListAsync();
+                context.TooltreeDatas.RemoveRange(existingData);
+
+                // Tworzenie nowego wpisu Tooltree
+                var tooltree = new Tooltree
+                    {
+                        ProjectId = project.Id,
+                        IsDone = false
+                    };
+                context.Tooltrees.Add(tooltree);
+
+                // Dodawanie nowych danych
+                foreach (var data in tempTooltreeData)
+                {
+                    var existingType = await context.TooltreeTypes.FirstOrDefaultAsync(t => t.Code == data.Type.Code);
+                    if (existingType == null)
+                    {
+                        context.TooltreeTypes.Add(data.Type);
+                    }
+                    else
+                    {
+                        data.Type = existingType;
+                    }
+                    data.Tooltree = tooltree;
+                }
+
+                await context.TooltreeDatas.AddRangeAsync(tempTooltreeData);
+
+                // Zapisywanie pliku
+                var tooltreeFile = new TooltreeFile
+                    {
+                        Name = $"Tooltree-{project.ECNumber}-{project.ProjectName}.xlsx",
+                        FileData = uploadedFileData,
+                        FileSize = uploadedFileData.Length,
+                        OrginalName = uploadedFileName,
+                        ProjectId = project.Id,
+                        Tooltree = tooltree
+                    };
+                context.TooltreeFiles.Add(tooltreeFile);
+
+                await context.SaveChangesAsync();
+
+                Snackbar.Add("Data saved successfully", Severity.Success);
+                tempTooltreeData.Clear(); // Czyszczenie tymczasowych danych po zapisie
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error saving data: {ex}");
+                Snackbar.Add("Error saving data", Severity.Error);
+            }
+            finally
+            {
+                _isProcessing = false;
+                StateHasChanged();
+            }
+        }
+    }
+
+
+
+    private async Task ShowFileHistory()
+    {
+        var parameters = new DialogParameters();
+        parameters.Add("ProjectId", ProjectId);
+
+        var options = new DialogOptions { CloseOnEscapeKey = true, MaxWidth = MaxWidth.Medium, FullWidth = true };
+        var dialog = DialogService.Show<FileHistoryDialog>("File History", parameters, options);
+        var result = await dialog.Result;
+
+        if (!result.Canceled)
+        {
+            // Możesz tutaj obsłużyć wynik dialogu, jeśli jest to potrzebne
+        }
+    }
 
 }

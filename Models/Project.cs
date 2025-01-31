@@ -1,9 +1,12 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace WTR_Blazor.Models;
 
 public class Project
 {
+    [Key]
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public int Id { get; set; }
     [Required]
     public string ECNumber { get; set; }
@@ -22,8 +25,9 @@ public class Project
     public virtual Employee? RMResponsible { get; set; }
     public int? TooltreeId { get; set; }
     public virtual Tooltree? Tooltree { get; set; }
+    public virtual List<TooltreeFile> TooltreeFiles { get; set; } = new();
     public DateTime? StartDate { get; set; } = DateTime.UtcNow;
     public DateTime? Installation { get; set; }
     public DateTime? SOP { get; set; }
-    public virtual List<TooltreeFile> TooltreeFiles { get; set; } = new List<TooltreeFile>();
+    
 }
