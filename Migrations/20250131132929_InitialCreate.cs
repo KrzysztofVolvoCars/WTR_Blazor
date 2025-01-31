@@ -131,7 +131,6 @@ namespace WTR_Blazor.Migrations
                     ProjectPhaseId = table.Column<int>(type: "INTEGER", nullable: true),
                     ProjectTypeId = table.Column<int>(type: "INTEGER", nullable: true),
                     RMResponsibleId = table.Column<int>(type: "INTEGER", nullable: true),
-                    TooltreeId = table.Column<int>(type: "INTEGER", nullable: true),
                     StartDate = table.Column<DateTime>(type: "TEXT", nullable: true),
                     Installation = table.Column<DateTime>(type: "TEXT", nullable: true),
                     SOP = table.Column<DateTime>(type: "TEXT", nullable: true)
@@ -238,8 +237,8 @@ namespace WTR_Blazor.Migrations
                     FileSize = table.Column<long>(type: "INTEGER", nullable: false),
                     Created = table.Column<DateTime>(type: "TEXT", nullable: false),
                     OrginalName = table.Column<string>(type: "TEXT", nullable: false),
-                    ProjectId = table.Column<int>(type: "INTEGER", nullable: false),
-                    TooltreeId = table.Column<int>(type: "INTEGER", nullable: false)
+                    TooltreeId = table.Column<int>(type: "INTEGER", nullable: false),
+                    ProjectId = table.Column<int>(type: "INTEGER", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -248,8 +247,7 @@ namespace WTR_Blazor.Migrations
                         name: "FK_TooltreeFiles_Projects_ProjectId",
                         column: x => x.ProjectId,
                         principalTable: "Projects",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_TooltreeFiles_Tooltrees_TooltreeId",
                         column: x => x.TooltreeId,
@@ -302,8 +300,7 @@ namespace WTR_Blazor.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_TooltreeDatas_TooltreeId",
                 table: "TooltreeDatas",
-                column: "TooltreeId",
-                unique: true);
+                column: "TooltreeId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_TooltreeDatas_TypeId",
@@ -324,6 +321,12 @@ namespace WTR_Blazor.Migrations
                 name: "IX_Tooltrees_ProjectId",
                 table: "Tooltrees",
                 column: "ProjectId",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_TooltreeTypes_Code",
+                table: "TooltreeTypes",
+                column: "Code",
                 unique: true);
         }
 

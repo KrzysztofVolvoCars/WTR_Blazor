@@ -23,11 +23,10 @@ public class Project
     public virtual ProjectType? ProjectType { get; set; }
     public int? RMResponsibleId { get; set; }
     public virtual Employee? RMResponsible { get; set; }
-    public int? TooltreeId { get; set; }
-    public virtual Tooltree? Tooltree { get; set; }
+    public virtual Tooltree? Tooltree { get; set; } = new();
     public virtual List<TooltreeFile> TooltreeFiles { get; set; } = new();
     public DateTime? StartDate { get; set; } = DateTime.UtcNow;
     public DateTime? Installation { get; set; }
     public DateTime? SOP { get; set; }
-    
+
 }

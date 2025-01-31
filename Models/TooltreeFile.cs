@@ -16,8 +16,6 @@ public class TooltreeFile
     public DateTime Created { get; set; } = DateTime.UtcNow;
     [Required]
     public string OrginalName { get; set; }
-    public int ProjectId { get; set; }
-    public virtual Project Project { get; set; }
     public int TooltreeId { get; set; }
     public virtual Tooltree Tooltree { get; set; }
 }

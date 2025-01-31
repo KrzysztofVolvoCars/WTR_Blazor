@@ -146,9 +146,6 @@ namespace WTR_Blazor.Migrations
                     b.Property<int?>("SupplierId")
                         .HasColumnType("INTEGER");
 
-                    b.Property<int?>("TooltreeId")
-                        .HasColumnType("INTEGER");
-
                     b.HasKey("Id");
 
                     b.HasIndex("EngineerId");
@@ -282,8 +279,7 @@ namespace WTR_Blazor.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("TooltreeId")
-                        .IsUnique();
+                    b.HasIndex("TooltreeId");
 
                     b.HasIndex("TypeId");
 
@@ -314,7 +310,7 @@ namespace WTR_Blazor.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<int>("ProjectId")
+                    b.Property<int?>("ProjectId")
                         .HasColumnType("INTEGER");
 
                     b.Property<int>("TooltreeId")
@@ -347,6 +343,9 @@ namespace WTR_Blazor.Migrations
                         .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("Code")
+                        .IsUnique();
 
                     b.ToTable("TooltreeTypes");
                 });
@@ -418,8 +417,8 @@ namespace WTR_Blazor.Migrations
             modelBuilder.Entity("WTR_Blazor.Models.TooltreeData", b =>
                 {
                     b.HasOne("WTR_Blazor.Models.Tooltree", "Tooltree")
-                        .WithOne("TooltreeData")
-                        .HasForeignKey("WTR_Blazor.Models.TooltreeData", "TooltreeId")
+                        .WithMany("TooltreeData")
+                        .HasForeignKey("TooltreeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -436,19 +435,15 @@ namespace WTR_Blazor.Migrations
 
             modelBuilder.Entity("WTR_Blazor.Models.TooltreeFile", b =>
                 {
-                    b.HasOne("WTR_Blazor.Models.Project", "Project")
+                    b.HasOne("WTR_Blazor.Models.Project", null)
                         .WithMany("TooltreeFiles")
-                        .HasForeignKey("ProjectId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .HasForeignKey("ProjectId");
 
                     b.HasOne("WTR_Blazor.Models.Tooltree", "Tooltree")
                         .WithMany("TooltreeFiles")
                         .HasForeignKey("TooltreeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("Project");
 
                     b.Navigation("Tooltree");
                 });
@@ -462,8 +457,7 @@ namespace WTR_Blazor.Migrations
 
             modelBuilder.Entity("WTR_Blazor.Models.Tooltree", b =>
                 {
-                    b.Navigation("TooltreeData")
-                        .IsRequired();
+                    b.Navigation("TooltreeData");
 
                     b.Navigation("TooltreeFiles");
                 });

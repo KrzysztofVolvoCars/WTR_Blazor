@@ -41,7 +41,7 @@
     private async Task LoadFiles()
     {
         using var context = await DbFactory.CreateDbContextAsync();
-        files = await context.TooltreeFiles.Where(f => f.ProjectId == ProjectId).ToListAsync();
+        files = await context.TooltreeFiles.Where(f => f.Id == ProjectId).ToListAsync();
     }
 
     private async Task DownloadFile(TooltreeFile file)

@@ -113,6 +113,7 @@
 
         if (project == null)
         {
+            HeaderTitle = "Project not found";
             Snackbar.Add("Project not found", Severity.Error);
             NavigationManager.NavigateTo("/projects");
             return;
@@ -314,8 +315,8 @@
                     {
                         data.Type = existingType;
                     }
-                    data.Tooltree = tooltree;
                 }
+
 
                 await context.TooltreeDatas.AddRangeAsync(tempTooltreeData);
 
@@ -326,7 +327,7 @@
                         FileData = uploadedFileData,
                         FileSize = uploadedFileData.Length,
                         OrginalName = uploadedFileName,
-                        ProjectId = project.Id,
+                        Id = project.Id,
                         Tooltree = tooltree
                     };
                 context.TooltreeFiles.Add(tooltreeFile);

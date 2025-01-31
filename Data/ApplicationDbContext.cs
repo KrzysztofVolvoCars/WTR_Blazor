@@ -63,23 +63,30 @@ public class ApplicationDbContext : DbContext
             .HasForeignKey<Tooltree>(t => t.ProjectId)
             .OnDelete(DeleteBehavior.Cascade);
 
+        modelBuilder.Entity<Project>()
+       .HasOne(p => p.Tooltree)
+       .WithOne(t => t.Project)
+       .HasForeignKey<Tooltree>(t => t.ProjectId)
+       .OnDelete(DeleteBehavior.Cascade);
+
         modelBuilder.Entity<Tooltree>()
-            .HasOne(t => t.TooltreeData)
+            .HasMany(t => t.TooltreeData)
             .WithOne(td => td.Tooltree)
-            .HasForeignKey<TooltreeData>(td => td.TooltreeId);
+            .HasForeignKey(td => td.TooltreeId)
+            .OnDelete(DeleteBehavior.Cascade);
 
-        modelBuilder.Entity<TooltreeFile>()
-            .HasOne(tf => tf.Project)
-            .WithMany(p => p.TooltreeFiles)
-            .HasForeignKey(tf => tf.ProjectId)
-            .OnDelete(DeleteBehavior.Restrict);
-
-        modelBuilder.Entity<TooltreeFile>()
-            .HasOne(tf => tf.Tooltree)
-            .WithMany(t => t.TooltreeFiles)
+        modelBuilder.Entity<Tooltree>()
+            .HasMany(t => t.TooltreeFiles)
+            .WithOne(tf => tf.Tooltree)
             .HasForeignKey(tf => tf.TooltreeId)
             .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<TooltreeType>()
+            .HasIndex(t => t.Code)
+            .IsUnique();
+
     }
+
 }
 
 
