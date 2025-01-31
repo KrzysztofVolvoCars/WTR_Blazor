@@ -5,8 +5,37 @@
 @inject IJSRuntime JS
 @inject ISnackbar Snackbar
 @using Microsoft.AspNetCore.Components.Forms
- 
+
 <PageTitle>@HeaderTitle</PageTitle>
+
+
+<style>
+    .dark-overlay {
+    background-color: rgba(0, 0, 0, 0.8) !important;
+    }
+</style>
+
+<MudOverlay Visible="@_isProcessing"
+DarkBackground="true"
+Absolute="false"
+ZIndex="9"
+Class="dark-overlay">
+    <MudContainer MaxWidth="MaxWidth.Small" Style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 10;height: 200px;">
+        <MudPaper Class="d-flex flex-column align-center pa-8" Style="background: rgba(255, 255, 255, 0.95); border-radius: 8px;height: 100%;">
+            <MudProgressCircular Color="Color.Primary" Indeterminate="true" Size="Size.Large" />
+            <MudText Typo="Typo.h6" Class="mt-4" Color="Color.Primary">Please wait...</MudText>
+
+            <LottiePlayer
+            Source="https://assets2.lottiefiles.com/packages/lf20_xyadoh9h.json"
+            Speed="1"
+            Loop="true"
+            AutoPlay="true"
+            Style="width: 300px; height: 300px;"
+            />
+        </MudPaper>
+    </MudContainer>
+</MudOverlay>
+
 
 <MudContainer Fixed="true" Class="mt-4">
     @if (project != null)
@@ -17,8 +46,8 @@
                     <div class="d-flex justify-space-between align-center">
                         <MudText Typo="Typo.h4">@HeaderTitle</MudText>
                         <MudButton OnClick="GoBack"
-                                   StartIcon="@Icons.Material.Filled.ArrowBack"
-                                   Color="Color.Default">
+                        StartIcon="@Icons.Material.Filled.ArrowBack"
+                        Color="Color.Default">
                             Back to Project
                         </MudButton>
                     </div>
@@ -26,7 +55,7 @@
             </MudGrid>
         </MudContainer>
 
-        <MudPaper Elevation="3" Class="pa-4">
+        <MudPaper Elevation="3" Class="mt-4 pa-4">
             <MudText Typo="Typo.body1" Class="text-center">
                 A list of all machines used in a station. Can be presented as a separate list (by station, or line).
             </MudText>
@@ -55,8 +84,11 @@
     private string HeaderTitle { get; set; }
     private Project project;
     private InputFile fileInput;
-   
-   
+
+    private bool _isProcessing;
+
+
+
 
     protected override async Task OnInitializedAsync()
     {
@@ -90,6 +122,11 @@
 
     public async Task DownloadExcelFile()
     {
+        _isProcessing = true;
+        StateHasChanged();
+        // dealy 2000ms
+        //TODO: Delete it!
+        await Task.Delay(2000);
         try
         {
             var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "Excels", "Tooltree.xlsm");
@@ -135,6 +172,11 @@
             Console.WriteLine($"Error downloading file: {ex}");
             throw; // Pozwól na obsługę błędu na wyższym poziomie
         }
+        finally
+        {
+            _isProcessing = false;
+            StateHasChanged();
+        }
     }
 
     private async Task TriggerFileUpload()
@@ -144,6 +186,7 @@
 
     private async Task HandleFileSelected(InputFileChangeEventArgs e)
     {
+
         try
         {
             var file = e.File;
@@ -194,21 +237,60 @@
             Console.WriteLine($"Error uploading file: {ex}");
             Snackbar.Add("Error uploading file", Severity.Error);
         }
+
     }
 
     private async Task ProcessExcelFile(Stream stream)
     {
+        _isProcessing = true;
+        StateHasChanged();
         try
         {
+            using var context = await DbFactory.CreateDbContextAsync();
+            var tooltreeTypes = await context.TooltreeTypes.ToListAsync();
+
             using var workbook = new XLWorkbook(stream);
             var worksheet = workbook.Worksheets.FirstOrDefault();
             if (worksheet != null)
             {
-                // Przykład odczytu danych
-                var supplierName = worksheet.Cell("C2").Value.ToString();
-                var projectNumber = worksheet.Cell("C4").Value.ToString();
+                var lastRow = worksheet.LastRowUsed().RowNumber();
+                var range = worksheet.Range("B7:L" + lastRow);
+                var table = range.AsTable();
 
-                // Tu możesz dodać logikę przetwarzania danych
+                var toolTreeData = new List<TooltreeData>();
+                foreach (var row in table.DataRange.Rows())
+                {
+                    if (string.IsNullOrEmpty(row.Cell(3).Value.ToString()))
+                    {
+
+                    }
+                    else
+                    {
+                        var typeCode = row.Cell(7).Value.ToString();
+                        var tooltreeType = tooltreeTypes.FirstOrDefault(t => t.Code == typeCode);
+                        var tooltreeTypeName = tooltreeTypes.FirstOrDefault(t => t.Code == typeCode);
+
+                        var toolTree = new TooltreeData
+                            {
+                                PLCStationEquipment = row.Cell(1).Value.ToString(),
+                                MachineNumber = row.Cell(2).Value.ToString(),
+                                PLC = row.Cell(3).Value.ToString(),
+                                Station = row.Cell(4).Value.ToString(),
+                                AssetCode = row.Cell(5).Value.ToString(),
+                                ToolNumber = row.Cell(6).Value.ToString(),
+                                TypeId = tooltreeType?.Id ?? 0,
+                                Description = row.Cell(8).Value.ToString(),
+                                AssetNumber = row.Cell(9).Value.ToString(),
+                                CommentLinebuilder = row.Cell(10).Value.ToString(),
+                                CommentVolvo = row.Cell(11).Value.ToString()
+                            };
+                        toolTreeData.Add(toolTree);                        
+                    }
+
+                }
+
+                await context.TooltreeDatas.AddRangeAsync(toolTreeData);
+                await context.SaveChangesAsync();
 
                 Snackbar.Add("File processed successfully", Severity.Success);
             }
@@ -218,6 +300,12 @@
             Console.WriteLine($"Error processing Excel file: {ex}");
             Snackbar.Add("Error processing Excel file", Severity.Error);
         }
+        finally
+        {
+            _isProcessing = false;
+            StateHasChanged();
+        }
     }
+
 
 }

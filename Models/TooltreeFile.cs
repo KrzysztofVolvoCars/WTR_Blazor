@@ -11,6 +11,7 @@ public class TooltreeFile
     public byte[] FileData { get; set; } = Array.Empty<byte>();
     public long FileSize { get; set; }
     public DateTime Created { get; set; } = DateTime.UtcNow;
+    public string OrginalName { get; set; }
     public int ProjectId { get; set; }
     public virtual Project Project { get; set; }
 }

@@ -7,4 +7,5 @@ public class Tooltree
     public virtual TooltreeData? TooltreeData { get; set; }
     public int TooltreeFileId { get; set; }
     public virtual TooltreeFile TooltreeFile { get; set; }
+    public bool IsDone { get; set; } = false;
 }
