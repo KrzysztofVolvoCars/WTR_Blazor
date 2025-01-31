@@ -114,24 +114,176 @@
                 </MudItem>
             </MudGrid>
 
-            <!-- Basic Information and Key Dates Cards -->
-            <MudGrid Class="mt-4">
-                <!-- ... (pozostała część kodu bez zmian) ... -->
+            @* Basic Information Card *@
+                <MudGrid Class="mt-4">
+                <MudItem xs="12" sm="6">
+                    <MudCard Elevation="3" Class="rounded-lg" Style="height: 100%">
+                        <MudCardHeader>
+                            <CardHeaderContent>
+                                <MudText Typo="Typo.h6">Basic Information</MudText>
+                            </CardHeaderContent>
+                        </MudCardHeader>
+                        <MudCardContent>
+                            <MudList T="Project" Dense="true">
+                                <MudListItem>
+                                    <MudText><b>EC Number:</b> @project.ECNumber</MudText>
+                                </MudListItem>
+                                <MudListItem>
+                                    <MudText><b>Project Name:</b> @project.ProjectName</MudText>
+                                </MudListItem>
+                                <MudListItem>
+                                    <MudText><b>Type:</b>
+                                        <MudChip Color="@GetProjectTypeColor(project.ProjectType.Color)" Size="Size.Small">
+                                            @project.ProjectType.Name
+                                        </MudChip>
+
+                                    </MudText>
+                                </MudListItem>
+                            </MudList>
+                        </MudCardContent>
+                    </MudCard>
+                </MudItem>
+
+                @* Key Dates Card *@
+                <MudItem xs="12" sm="6">
+                    <MudCard Elevation="3" Class="rounded-lg" Style="height: 100%">
+                        <MudCardHeader>
+                            <CardHeaderContent>
+                                <MudText Typo="Typo.h6">Key Dates</MudText>
+                            </CardHeaderContent>
+                        </MudCardHeader>
+                        <MudCardContent>
+                            <MudList T="Project" Dense="true">
+                                <MudListItem>
+                                    <div class="d-flex align-center">
+                                        <MudIcon Icon="@Icons.Material.Filled.CalendarToday" Color="Color.Primary" Class="mr-2"/>
+                                        <MudText><b>Start Date:</b> @project.StartDate?.ToShortDateString()</MudText>
+                                    </div>
+                                </MudListItem>
+                                <MudListItem>
+                                    <div class="d-flex align-center">
+                                        <MudIcon Icon="@Icons.Material.Filled.Build" Color="Color.Info" Class="mr-2"/>
+                                        <MudText><b>Installation:</b> @project.Installation?.ToShortDateString()</MudText>
+                                    </div>
+                                </MudListItem>
+                                <MudListItem>
+                                    <div class="d-flex align-center">
+                                        <MudIcon Icon="@Icons.Material.Filled.Flag" Color="Color.Success" Class="mr-2"/>
+                                        <MudText><b>SOP:</b> @project.SOP?.ToShortDateString()</MudText>
+                                    </div>
+                                </MudListItem>
+                            </MudList>
+                        </MudCardContent>
+                    </MudCard>
+                </MudItem>
             </MudGrid>
 
-            <!-- Project Team Section -->
+            @* Project Team Section *@
             <MudGrid Class="mt-4">
-                <!-- ... (pozostała część kodu bez zmian) ... -->
+                <MudItem xs="12">
+                    <MudText Typo="Typo.h6" Class="mb-4">Project Team</MudText>
+                </MudItem>
+
+                @* Engineer Card *@
+                <MudItem xs="12" sm="4">
+                    <MudCard Elevation="3" Class="rounded-lg">
+                        <MudCardHeader>
+                            <CardHeaderContent>
+                                <MudText Typo="Typo.h6">Engineer</MudText>
+                            </CardHeaderContent>
+                        </MudCardHeader>
+                        <MudCardContent>
+                            <div class="d-flex align-center">
+                                @if (project.Engineer?.PhotoData != null)
+                                {
+                                        <MudAvatar Image="@($"data:image/png;base64,{Convert.ToBase64String(project.Engineer.PhotoData)}")" 
+                                                  Class="mr-2" Size="Size.Large" />
+                                }
+                                else
+                                {
+                                        <MudAvatar Color="Color.Secondary" Class="mr-2" Size="Size.Large">
+                                        @(project.Engineer?.FirstName.FirstOrDefault())@(project.Engineer?.LastName.FirstOrDefault())
+                                        </MudAvatar>
+                                }
+                                <div>
+                                    <MudText Typo="Typo.body1">@($"{project.Engineer?.FirstName} {project.Engineer?.LastName}")</MudText>
+                                    <MudText Typo="Typo.body2">@project.Engineer?.Position</MudText>
+                                </div>
+                            </div>
+                        </MudCardContent>
+                    </MudCard>
+                </MudItem>
+
+                @* R&M Responsible Card *@
+                <MudItem xs="12" sm="4">
+                    <MudCard Elevation="3" Class="rounded-lg">
+                        <MudCardHeader>
+                            <CardHeaderContent>
+                                <MudText Typo="Typo.h6">R&M Responsible</MudText>
+                            </CardHeaderContent>
+                        </MudCardHeader>
+                        <MudCardContent>
+                            <div class="d-flex align-center">
+                                @if (project.RMResponsible?.PhotoData != null)
+                                {
+                                        <MudAvatar Image="@($"data:image/png;base64,{Convert.ToBase64String(project.RMResponsible.PhotoData)}")" 
+                                                  Class="mr-2" Size="Size.Large" />
+                                }
+                                else
+                                {
+                                        <MudAvatar Color="Color.Secondary" Class="mr-2" Size="Size.Large">
+                                        @(project.RMResponsible?.FirstName.FirstOrDefault())@(project.RMResponsible?.LastName.FirstOrDefault())
+                                        </MudAvatar>
+                                }
+                                <div>
+                                    <MudText Typo="Typo.body1">@($"{project.RMResponsible?.FirstName} {project.RMResponsible?.LastName}")</MudText>
+                                    <MudText Typo="Typo.body2">@project.RMResponsible?.Position</MudText>
+                                </div>
+                            </div>
+                        </MudCardContent>
+                    </MudCard>
+                </MudItem>
+
+                @* Supplier Card *@
+                <MudItem xs="12" sm="4">
+                    <MudCard Elevation="3" Class="rounded-lg">
+                        <MudCardHeader>
+                            <CardHeaderContent>
+                                <MudText Typo="Typo.h6">Supplier</MudText>
+                            </CardHeaderContent>
+                        </MudCardHeader>
+                        <MudCardContent>
+                            <div class="d-flex align-center">
+                                @if (project.Supplier?.LogoData != null)
+                                {
+                                        <MudAvatar Image="@($"data:image/png;base64,{Convert.ToBase64String(project.Supplier.LogoData)}")" 
+                                                  Class="mr-2" Size="Size.Large" />
+                                }
+                                else
+                                {
+                                        <MudAvatar Color="Color.Secondary" Class="mr-2" Size="Size.Large">
+                                        @(project.Supplier?.Name.FirstOrDefault())
+                                        </MudAvatar>
+                                }
+                                <MudText Typo="Typo.body1">@project.Supplier?.Name</MudText>
+                            </div>
+                        </MudCardContent>
+                    </MudCard>
+                </MudItem>
             </MudGrid>
-        </MudGrid>
+            </MudGrid>
+
+            <MudGrid Class="mt-4"> </MudGrid>
     }
     else
     {
-        <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
+            <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
     }
 </MudContainer>
 
+
 <style>
+
     .hover-component {
         transition: all 0.3s ease-in-out;
         position: relative;
@@ -141,7 +293,7 @@
     }
 
         .hover-component:hover {
-            background-color: rgba(12, 128, 233, 0.2);
+            background-color: rgba(12, 128, 233,0.2);
             transform: scale(1.1);
         }
 
@@ -188,9 +340,15 @@
         }
     }
 
-    private Color GetProjectTypeColor(ProjectType type) => type?.Color != null
-        ? Enum.TryParse<Color>(type.Color, out var color) ? color : Color.Default
-        : Color.Default;
+    private Color GetProjectTypeColor(string colorString)
+    {
+        if (Enum.TryParse<Color>(colorString, out var color))
+        {
+            return color;
+        }
+        return Color.Default;
+    }
+
 
     private Color GetPhaseColor(ProjectPhase phase) =>
         phase.Id == project.ProjectPhaseId ? Color.Primary :

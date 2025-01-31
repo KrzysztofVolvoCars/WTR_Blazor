@@ -34,6 +34,13 @@
     <Folder Include="wwwroot\Database\" />
   </ItemGroup>
 
+
+  <ItemGroup>
+    <Content Update="wwwroot\Images\powerBi_24.svg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
  
  
 

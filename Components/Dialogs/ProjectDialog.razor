@@ -69,17 +69,20 @@
                             }
                         </MudSelect>
                     </MudItem>
-
-
-                    <MudItem xs="12">
-                        <MudRadioGroup T="int?" @bind-Value="Project.ProjectTypeId" For="@(() => Project.ProjectTypeId)">
-                            <MudRadio T="int?" Value="@((int?)null)" Color="Color.Default" Dense="true">None</MudRadio>
-                            @foreach (var type in projectTypes.OrderBy(pt => pt.Order))
-                            {
-                                <MudRadio T="int?" Value="@type.Id" Color="@GetProjectTypeColor(type)" Dense="true">@type.Name</MudRadio>
-                            }
-                        </MudRadioGroup>
-                    </MudItem>
+                
+<MudItem xs="12" Class="my-4">
+    
+        <MudText Typo="Typo.subtitle1" Class="mb-2">Project Type</MudText>
+        <MudRadioGroup T="int?" @bind-Value="Project.ProjectTypeId" For="@(() => Project.ProjectTypeId)">
+            @foreach (var type in projectTypes.OrderBy(pt => pt.Order))
+            {
+                <div class="d-flex align-center mb-2">
+                    <MudRadio Class="me-8" T="int?" Value="@type.Id" Color="@GetProjectTypeColor(type)" Dense="true">@type.Name</MudRadio>
+                </div>
+            }
+        </MudRadioGroup>
+    
+</MudItem>
 
 
                     <MudItem xs="12" sm="4">
