@@ -26,9 +26,26 @@
         </MudGrid>
 
         <MudPaper Elevation="3" Class="mt-4 pa-4">
-            <MudText Typo="Typo.body1" Class="text-center">
-                A list of all machines used in a station. Can be presented as a separate list (by station, or line).
-            </MudText>
+            <div class="d-flex justify-space-between align-center">
+                <MudText Typo="Typo.body1">
+                    A list of all machines used in a station. Can be presented as a separate list (by station, or line).
+                </MudText>
+                <div class="d-flex gap-2">
+                    <MudButton Color="Color.Success"
+                               OnClick="SetDoneStatus"
+                               Variant="Variant.Filled"
+                               Disabled="@(project?.Tooltree?.IsDone == true)">
+                        Set as Done
+                    </MudButton>
+                    <MudButton Color="Color.Error"
+                               OnClick="SetNotDoneStatus"
+                               Variant="Variant.Filled"
+                               Disabled="@(project?.Tooltree?.IsDone == false)">
+                        Set as Not Done
+                    </MudButton>
+                </div>
+            </div>
+
             <MudDivider Class="my-3" />
             <MudGrid>
                 <MudItem xs="4" Class="d-flex justify-center">
@@ -37,15 +54,22 @@
                     </MudButton>
                 </MudItem>
                 <MudItem xs="4" Class="d-flex justify-center">
-                    <MudButton Color="Color.Secondary" StartIcon="@Icons.Material.Filled.Upload" OnClick="TriggerFileUpload">
+                    <MudButton Color="Color.Secondary"
+                               StartIcon="@Icons.Material.Filled.Upload"
+                               OnClick="TriggerFileUpload"
+                               Disabled="@(project?.Tooltree?.IsDone == true)">
                         Upload File
                     </MudButton>
+
                     <InputFile OnChange="HandleFileSelected" class="d-none" @ref="fileInput" />
                 </MudItem>
                 <MudItem xs="4" Class="d-flex justify-center">
-                    <MudButton Color="Color.Success" OnClick="SaveData" Disabled="@(!tempTooltreeData.Any())">
+                    <MudButton Color="Color.Success"
+                               OnClick="SaveData"
+                               Disabled="@(!isNewDataLoaded || project?.Tooltree?.IsDone == true)">
                         Save Data
                     </MudButton>
+
                 </MudItem>
             </MudGrid>
         </MudPaper>
@@ -93,6 +117,9 @@
     private byte[] uploadedFileData;
     private string uploadedFileName;
 
+    private bool isNewDataLoaded = false;
+
+
     protected override async Task OnInitializedAsync()
     {
         await LoadProject();
@@ -122,6 +149,7 @@
         if (project.Tooltree?.TooltreeData != null && project.Tooltree.TooltreeData.Any())
         {
             tempTooltreeData = project.Tooltree.TooltreeData.ToList();
+            isNewDataLoaded = false;
         }
     }
 
@@ -259,11 +287,12 @@
                     };
                 tempTooltreeData.Add(tooltreeData);
             }
-
+            isNewDataLoaded = true;  
             Snackbar.Add("File processed successfully", Severity.Success);
         }
         catch (Exception ex)
         {
+            isNewDataLoaded = false; 
             Console.WriteLine($"Error processing Excel file: {ex}");
             Snackbar.Add("Error processing Excel file", Severity.Error);
         }
@@ -394,6 +423,59 @@
         if (!result.Canceled)
         {
             // Możesz tutaj obsłużyć wynik dialogu, jeśli jest to potrzebne
+        }
+    }
+
+
+    private async Task SetDoneStatus()
+    {
+        var options = new DialogOptions { CloseOnEscapeKey = true };
+        var result = await DialogService.ShowMessageBox(
+            "Confirm",
+            "Are you sure you want to mark this ToolTree as Done? This will lock the data from further modifications.",
+            yesText: "Yes", cancelText: "No", options: options);
+
+        if (result == true)
+        {
+            await UpdateDoneStatus(true);
+        }
+    }
+
+    private async Task SetNotDoneStatus()
+    {
+        var options = new DialogOptions { CloseOnEscapeKey = true };
+        var result = await DialogService.ShowMessageBox(
+            "Confirm",
+            "Are you sure you want to mark this ToolTree as Not Done? This will allow data modifications.",
+            yesText: "Yes", cancelText: "No", options: options);
+
+        if (result == true)
+        {
+            await UpdateDoneStatus(false);
+        }
+    }
+
+    private async Task UpdateDoneStatus(bool isDone)
+    {
+        try
+        {
+            using var context = await DbFactory.CreateDbContextAsync();
+            var tooltree = await context.Tooltrees
+                .FirstOrDefaultAsync(t => t.ProjectId == ProjectId);
+
+            if (tooltree != null)
+            {
+                tooltree.IsDone = isDone;
+                await context.SaveChangesAsync();
+                project.Tooltree.IsDone = isDone;
+                StateHasChanged();
+                Snackbar.Add($"ToolTree status updated successfully", Severity.Success);
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error updating status: {ex}");
+            Snackbar.Add("Error updating status", Severity.Error);
         }
     }
 

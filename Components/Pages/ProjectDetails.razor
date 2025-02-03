@@ -329,6 +329,7 @@
             .Include(p => p.Supplier)
             .Include(p => p.ProjectPhase)
             .Include(p => p.ProjectType)
+            .Include(p => p.Tooltree)
             .FirstOrDefaultAsync(p => p.Id == Id);
 
         projectPhases = await context.ProjectPhases.OrderBy(p => p.Order).ToListAsync();
@@ -337,6 +338,10 @@
         {
             Snackbar.Add("Project not found", Severity.Error);
             NavigationManager.NavigateTo("/projects");
+        }
+        else
+        {
+            IsCompleted = project.Tooltree?.IsDone ?? false;  
         }
     }
 
