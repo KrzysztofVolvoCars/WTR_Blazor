@@ -1,11 +1,13 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using WTR_Blazor.Models.Tooltree;
 
-namespace WTR_Blazor.Models.Deliverables;
+namespace WTR_Blazor.Models.Deliverable;
 
 public class Deliverables
 {
     [Key]
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public int Id { get; set; }
 
     public int ProjectId { get; set; }
@@ -17,3 +19,6 @@ public class Deliverables
     public int Progress { get; set; } = 0;
     public bool IsDone { get; set; } = false;
 }
+
+
+

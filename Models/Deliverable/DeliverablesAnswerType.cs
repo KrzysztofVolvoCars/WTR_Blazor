@@ -1,9 +1,9 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
 
-namespace WTR_Blazor.Models.Deliverables;
+namespace WTR_Blazor.Models.Deliverable;
 
-public class DeliverablesAnswer
+public class DeliverablesAnswerType
 {    
     [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]

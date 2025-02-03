@@ -27,6 +27,21 @@ namespace WTR_Blazor.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Deliverables",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    ProjectId = table.Column<int>(type: "INTEGER", nullable: false),
+                    Progress = table.Column<int>(type: "INTEGER", nullable: false),
+                    IsDone = table.Column<bool>(type: "INTEGER", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Deliverables", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "EmployeePositions",
                 columns: table => new
                 {
@@ -87,6 +102,49 @@ namespace WTR_Blazor.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "DeliverablesQuestionGroups",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    GroupName = table.Column<string>(type: "TEXT", nullable: false),
+                    Description = table.Column<string>(type: "TEXT", nullable: false),
+                    Order = table.Column<int>(type: "INTEGER", nullable: false),
+                    IsActive = table.Column<bool>(type: "INTEGER", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_DeliverablesQuestionGroups", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_DeliverablesQuestionGroups_Deliverables_Id",
+                        column: x => x.Id,
+                        principalTable: "Deliverables",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "DeliverablesTooltrees",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    MachineNumber = table.Column<string>(type: "TEXT", nullable: false),
+                    Description = table.Column<string>(type: "TEXT", nullable: false),
+                    Order = table.Column<int>(type: "INTEGER", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_DeliverablesTooltrees", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_DeliverablesTooltrees_Deliverables_Id",
+                        column: x => x.Id,
+                        principalTable: "Deliverables",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Employees",
                 columns: table => new
                 {
@@ -118,6 +176,31 @@ namespace WTR_Blazor.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "DeliverablesQuestions",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    Question = table.Column<string>(type: "TEXT", nullable: false),
+                    Description = table.Column<string>(type: "TEXT", nullable: false),
+                    Order = table.Column<int>(type: "INTEGER", nullable: false),
+                    IsActive = table.Column<bool>(type: "INTEGER", nullable: false),
+                    QuestionGroupId = table.Column<int>(type: "INTEGER", nullable: false),
+                    DeliverablesAnswerTypeId = table.Column<int>(type: "INTEGER", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "TEXT", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_DeliverablesQuestions", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_DeliverablesQuestions_DeliverablesQuestionGroups_QuestionGroupId",
+                        column: x => x.QuestionGroupId,
+                        principalTable: "DeliverablesQuestionGroups",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Projects",
                 columns: table => new
                 {
@@ -132,6 +215,7 @@ namespace WTR_Blazor.Migrations
                     ProjectTypeId = table.Column<int>(type: "INTEGER", nullable: true),
                     RMResponsibleId = table.Column<int>(type: "INTEGER", nullable: true),
                     TooltreeId = table.Column<int>(type: "INTEGER", nullable: true),
+                    DeliverablesId = table.Column<int>(type: "INTEGER", nullable: false),
                     StartDate = table.Column<DateTime>(type: "TEXT", nullable: true),
                     Installation = table.Column<DateTime>(type: "TEXT", nullable: true),
                     SOP = table.Column<DateTime>(type: "TEXT", nullable: true)
@@ -145,6 +229,12 @@ namespace WTR_Blazor.Migrations
                         principalTable: "Companies",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Projects_Deliverables_DeliverablesId",
+                        column: x => x.DeliverablesId,
+                        principalTable: "Deliverables",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_Projects_Employees_EngineerId",
                         column: x => x.EngineerId,
@@ -169,6 +259,29 @@ namespace WTR_Blazor.Migrations
                         principalTable: "ProjectTypes",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "DeliverablesAnswerTypes",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    Answer = table.Column<string>(type: "TEXT", nullable: false),
+                    Description = table.Column<string>(type: "TEXT", nullable: false),
+                    Value = table.Column<int>(type: "INTEGER", nullable: false),
+                    Order = table.Column<int>(type: "INTEGER", nullable: false),
+                    IsActive = table.Column<bool>(type: "INTEGER", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_DeliverablesAnswerTypes", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_DeliverablesAnswerTypes_DeliverablesQuestions_Id",
+                        column: x => x.Id,
+                        principalTable: "DeliverablesQuestions",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -252,6 +365,11 @@ namespace WTR_Blazor.Migrations
                 });
 
             migrationBuilder.CreateIndex(
+                name: "IX_DeliverablesQuestions_QuestionGroupId",
+                table: "DeliverablesQuestions",
+                column: "QuestionGroupId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Employees_CompanyId",
                 table: "Employees",
                 column: "CompanyId");
@@ -266,6 +384,12 @@ namespace WTR_Blazor.Migrations
                 name: "IX_Employees_PositionId",
                 table: "Employees",
                 column: "PositionId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Projects_DeliverablesId",
+                table: "Projects",
+                column: "DeliverablesId",
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Projects_EngineerId",
@@ -324,10 +448,19 @@ namespace WTR_Blazor.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
+                name: "DeliverablesAnswerTypes");
+
+            migrationBuilder.DropTable(
+                name: "DeliverablesTooltrees");
+
+            migrationBuilder.DropTable(
                 name: "TooltreeDatas");
 
             migrationBuilder.DropTable(
                 name: "TooltreeFiles");
+
+            migrationBuilder.DropTable(
+                name: "DeliverablesQuestions");
 
             migrationBuilder.DropTable(
                 name: "TooltreeTypes");
@@ -336,7 +469,13 @@ namespace WTR_Blazor.Migrations
                 name: "Tooltrees");
 
             migrationBuilder.DropTable(
+                name: "DeliverablesQuestionGroups");
+
+            migrationBuilder.DropTable(
                 name: "Projects");
+
+            migrationBuilder.DropTable(
+                name: "Deliverables");
 
             migrationBuilder.DropTable(
                 name: "Employees");

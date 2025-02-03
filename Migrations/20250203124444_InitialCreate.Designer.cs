@@ -11,7 +11,7 @@ using WTR_Blazor.Data;
 namespace WTR_Blazor.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250203065612_InitialCreate")]
+    [Migration("20250203124444_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -39,6 +39,137 @@ namespace WTR_Blazor.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Companies");
+                });
+
+            modelBuilder.Entity("WTR_Blazor.Models.Deliverable.Deliverables", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("IsDone")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("Progress")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("ProjectId")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Deliverables");
+                });
+
+            modelBuilder.Entity("WTR_Blazor.Models.Deliverable.DeliverablesAnswerType", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Answer")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("Order")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("Value")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("DeliverablesAnswerTypes");
+                });
+
+            modelBuilder.Entity("WTR_Blazor.Models.Deliverable.DeliverablesQuestion", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("DeliverablesAnswerTypeId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("Order")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Question")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("QuestionGroupId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("QuestionGroupId");
+
+                    b.ToTable("DeliverablesQuestions");
+                });
+
+            modelBuilder.Entity("WTR_Blazor.Models.Deliverable.DeliverablesQuestionGroup", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("GroupName")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("Order")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("DeliverablesQuestionGroups");
+                });
+
+            modelBuilder.Entity("WTR_Blazor.Models.Deliverable.DeliverablesTooltree", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("MachineNumber")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("Order")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("DeliverablesTooltrees");
                 });
 
             modelBuilder.Entity("WTR_Blazor.Models.Employee", b =>
@@ -114,6 +245,9 @@ namespace WTR_Blazor.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
+                    b.Property<int>("DeliverablesId")
+                        .HasColumnType("INTEGER");
+
                     b.Property<string>("ECNumber")
                         .IsRequired()
                         .HasColumnType("TEXT");
@@ -153,6 +287,9 @@ namespace WTR_Blazor.Migrations
                         .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("DeliverablesId")
+                        .IsUnique();
 
                     b.HasIndex("EngineerId");
 
@@ -213,7 +350,7 @@ namespace WTR_Blazor.Migrations
                     b.ToTable("ProjectTypes");
                 });
 
-            modelBuilder.Entity("WTR_Blazor.Models.Tooltree", b =>
+            modelBuilder.Entity("WTR_Blazor.Models.Tooltree.Tooltree", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -233,7 +370,7 @@ namespace WTR_Blazor.Migrations
                     b.ToTable("Tooltrees");
                 });
 
-            modelBuilder.Entity("WTR_Blazor.Models.TooltreeData", b =>
+            modelBuilder.Entity("WTR_Blazor.Models.Tooltree.TooltreeData", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -292,7 +429,7 @@ namespace WTR_Blazor.Migrations
                     b.ToTable("TooltreeDatas");
                 });
 
-            modelBuilder.Entity("WTR_Blazor.Models.TooltreeFile", b =>
+            modelBuilder.Entity("WTR_Blazor.Models.Tooltree.TooltreeFile", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -326,7 +463,7 @@ namespace WTR_Blazor.Migrations
                     b.ToTable("TooltreeFiles");
                 });
 
-            modelBuilder.Entity("WTR_Blazor.Models.TooltreeType", b =>
+            modelBuilder.Entity("WTR_Blazor.Models.Tooltree.TooltreeType", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -351,6 +488,44 @@ namespace WTR_Blazor.Migrations
                     b.ToTable("TooltreeTypes");
                 });
 
+            modelBuilder.Entity("WTR_Blazor.Models.Deliverable.DeliverablesAnswerType", b =>
+                {
+                    b.HasOne("WTR_Blazor.Models.Deliverable.DeliverablesQuestion", null)
+                        .WithMany("DeliverablesAnswerType")
+                        .HasForeignKey("Id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("WTR_Blazor.Models.Deliverable.DeliverablesQuestion", b =>
+                {
+                    b.HasOne("WTR_Blazor.Models.Deliverable.DeliverablesQuestionGroup", "DeliverablesQuestionGroup")
+                        .WithMany("Question")
+                        .HasForeignKey("QuestionGroupId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("DeliverablesQuestionGroup");
+                });
+
+            modelBuilder.Entity("WTR_Blazor.Models.Deliverable.DeliverablesQuestionGroup", b =>
+                {
+                    b.HasOne("WTR_Blazor.Models.Deliverable.Deliverables", null)
+                        .WithMany("DeliverablesQuestionGroup")
+                        .HasForeignKey("Id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("WTR_Blazor.Models.Deliverable.DeliverablesTooltree", b =>
+                {
+                    b.HasOne("WTR_Blazor.Models.Deliverable.Deliverables", null)
+                        .WithMany("DeliverablesTooltree")
+                        .HasForeignKey("Id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("WTR_Blazor.Models.Employee", b =>
                 {
                     b.HasOne("WTR_Blazor.Models.Company", "Company")
@@ -368,6 +543,12 @@ namespace WTR_Blazor.Migrations
 
             modelBuilder.Entity("WTR_Blazor.Models.Project", b =>
                 {
+                    b.HasOne("WTR_Blazor.Models.Deliverable.Deliverables", "Deliverables")
+                        .WithOne("Project")
+                        .HasForeignKey("WTR_Blazor.Models.Project", "DeliverablesId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("WTR_Blazor.Models.Employee", "Engineer")
                         .WithMany()
                         .HasForeignKey("EngineerId")
@@ -393,6 +574,8 @@ namespace WTR_Blazor.Migrations
                         .HasForeignKey("SupplierId")
                         .OnDelete(DeleteBehavior.Restrict);
 
+                    b.Navigation("Deliverables");
+
                     b.Navigation("Engineer");
 
                     b.Navigation("ProjectPhase");
@@ -404,26 +587,26 @@ namespace WTR_Blazor.Migrations
                     b.Navigation("Supplier");
                 });
 
-            modelBuilder.Entity("WTR_Blazor.Models.Tooltree", b =>
+            modelBuilder.Entity("WTR_Blazor.Models.Tooltree.Tooltree", b =>
                 {
                     b.HasOne("WTR_Blazor.Models.Project", "Project")
                         .WithOne("Tooltree")
-                        .HasForeignKey("WTR_Blazor.Models.Tooltree", "ProjectId")
+                        .HasForeignKey("WTR_Blazor.Models.Tooltree.Tooltree", "ProjectId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Project");
                 });
 
-            modelBuilder.Entity("WTR_Blazor.Models.TooltreeData", b =>
+            modelBuilder.Entity("WTR_Blazor.Models.Tooltree.TooltreeData", b =>
                 {
-                    b.HasOne("WTR_Blazor.Models.Tooltree", "Tooltree")
+                    b.HasOne("WTR_Blazor.Models.Tooltree.Tooltree", "Tooltree")
                         .WithMany("TooltreeData")
                         .HasForeignKey("TooltreeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("WTR_Blazor.Models.TooltreeType", "Type")
+                    b.HasOne("WTR_Blazor.Models.Tooltree.TooltreeType", "Type")
                         .WithMany()
                         .HasForeignKey("TypeId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -434,9 +617,9 @@ namespace WTR_Blazor.Migrations
                     b.Navigation("Type");
                 });
 
-            modelBuilder.Entity("WTR_Blazor.Models.TooltreeFile", b =>
+            modelBuilder.Entity("WTR_Blazor.Models.Tooltree.TooltreeFile", b =>
                 {
-                    b.HasOne("WTR_Blazor.Models.Tooltree", "Tooltree")
+                    b.HasOne("WTR_Blazor.Models.Tooltree.Tooltree", "Tooltree")
                         .WithMany("TooltreeFiles")
                         .HasForeignKey("TooltreeId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -445,12 +628,32 @@ namespace WTR_Blazor.Migrations
                     b.Navigation("Tooltree");
                 });
 
+            modelBuilder.Entity("WTR_Blazor.Models.Deliverable.Deliverables", b =>
+                {
+                    b.Navigation("DeliverablesQuestionGroup");
+
+                    b.Navigation("DeliverablesTooltree");
+
+                    b.Navigation("Project")
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("WTR_Blazor.Models.Deliverable.DeliverablesQuestion", b =>
+                {
+                    b.Navigation("DeliverablesAnswerType");
+                });
+
+            modelBuilder.Entity("WTR_Blazor.Models.Deliverable.DeliverablesQuestionGroup", b =>
+                {
+                    b.Navigation("Question");
+                });
+
             modelBuilder.Entity("WTR_Blazor.Models.Project", b =>
                 {
                     b.Navigation("Tooltree");
                 });
 
-            modelBuilder.Entity("WTR_Blazor.Models.Tooltree", b =>
+            modelBuilder.Entity("WTR_Blazor.Models.Tooltree.Tooltree", b =>
                 {
                     b.Navigation("TooltreeData");
 

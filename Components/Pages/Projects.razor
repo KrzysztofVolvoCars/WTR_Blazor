@@ -98,6 +98,7 @@
             .Include(p => p.Supplier)
             .Include(p => p.ProjectPhase)
             .Include(p => p.ProjectType)
+            .Include(p => p.Deliverables)
             .ToListAsync();
     }
 

@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
 
-namespace WTR_Blazor.Models.Deliverables;
+namespace WTR_Blazor.Models.Deliverable;
 
 public class DeliverablesQuestion
 {
@@ -14,4 +14,15 @@ public class DeliverablesQuestion
     public string Description { get; set; } = string.Empty;
     public int Order { get; set; }
     public bool IsActive { get; set; } = true;
+
+    public int QuestionGroupId { get; set; }
+    public virtual DeliverablesQuestionGroup DeliverablesQuestionGroup { get; set; }
+    
+    public int DeliverablesAnswerTypeId { get; set; }
+    public virtual List<DeliverablesAnswerType> DeliverablesAnswerType { get; set; }
+
+    public DateTime? UpdatedAt { get; set; }
+
 }
+
+

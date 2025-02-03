@@ -1,5 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using WTR_Blazor.Models;
+using WTR_Blazor.Models.Deliverable;
+ 
 using WTR_Blazor.Models.Tooltree;
 
 namespace WTR_Blazor.Data;
@@ -14,11 +16,19 @@ public class ApplicationDbContext : DbContext
     public DbSet<Company> Companies { get; set; }
     public DbSet<ProjectPhase> ProjectPhases { get; set; }
     public DbSet<ProjectType> ProjectTypes { get; set; }
-    public DbSet<Tooltree> Tooltrees { get; set; }
     public DbSet<EmployeePosition> EmployeePositions { get; set; }
+   
+    public DbSet<Tooltree> Tooltrees { get; set; }
     public DbSet<TooltreeData> TooltreeDatas { get; set; }
     public DbSet<TooltreeFile> TooltreeFiles { get; set; }
     public DbSet<TooltreeType> TooltreeTypes { get; set; }
+
+    // New DbSet properties
+    public DbSet<Deliverables> Deliverables { get; set; }
+    public DbSet<DeliverablesAnswerType> DeliverablesAnswerTypes { get; set; }
+    public DbSet<DeliverablesQuestion> DeliverablesQuestions { get; set; }
+    public DbSet<DeliverablesQuestionGroup> DeliverablesQuestionGroups { get; set; }
+    public DbSet<DeliverablesTooltree> DeliverablesTooltrees { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -54,6 +64,9 @@ public class ApplicationDbContext : DbContext
             .HasForeignKey(p => p.ProjectTypeId)
             .OnDelete(DeleteBehavior.Restrict);
 
+
+
+
         modelBuilder.Entity<Employee>()
             .HasIndex(e => e.Email)
             .IsUnique();
@@ -86,8 +99,48 @@ public class ApplicationDbContext : DbContext
             .HasIndex(t => t.Code)
             .IsUnique();
 
+        // Configure one-to-one relationship between Project and Deliverables
+        modelBuilder.Entity<Project>()
+            .HasOne(p => p.Deliverables)
+            .WithOne(d => d.Project)
+            .HasForeignKey<Project>(p => p.DeliverablesId) // Używa DeliverablesId jako FK
+            .IsRequired(); // Wymagane, więc FK nie może być NULL
+
+        modelBuilder.Entity<Deliverables>()
+            .HasOne(d => d.Project)
+            .WithOne(p => p.Deliverables);
+
+        // Configure DeliverablesTooltree relationship
+        modelBuilder.Entity<Deliverables>()
+            .HasMany(d => d.DeliverablesTooltree)
+            .WithOne()
+            .HasForeignKey(d => d.Id)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        // Configure DeliverablesQuestionGroup relationship
+        modelBuilder.Entity<Deliverables>()
+            .HasMany(d => d.DeliverablesQuestionGroup)
+            .WithOne()
+            .HasForeignKey(d => d.Id)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        // Configure DeliverablesQuestion relationships
+        modelBuilder.Entity<DeliverablesQuestionGroup>()
+            .HasMany(g => g.Question)
+            .WithOne(q => q.DeliverablesQuestionGroup)
+            .HasForeignKey(q => q.QuestionGroupId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        // Configure 1:N relationship between DeliverablesQuestion and DeliverablesAnswerType
+        modelBuilder.Entity<DeliverablesQuestion>()
+            .HasMany(q => q.DeliverablesAnswerType)
+            .WithOne()
+            .HasForeignKey(q => q.Id)
+            .OnDelete(DeleteBehavior.Cascade);
     }
+
 }
+ 
 
 
 //dotnet ef migrations add InitialCreate

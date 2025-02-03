@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using WTR_Blazor.Models.Deliverable;
 using WTR_Blazor.Models.Tooltree;
 
 namespace WTR_Blazor.Models;
@@ -34,7 +35,7 @@ public class Project
     public virtual WTR_Blazor.Models.Tooltree.Tooltree? Tooltree { get; set; } = new();
 
     public int? DeliverablesId { get; set; }
-    public virtual WTR_Blazor.Models.Deliverables.Deliverables? Deliverables { get; set; } = new();
+    public virtual Deliverables? Deliverables { get; set; } = new();
 
     public DateTime? StartDate { get; set; } = DateTime.UtcNow;
     public DateTime? Installation { get; set; }
