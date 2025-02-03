@@ -102,13 +102,10 @@
     {
         using var context = await DbFactory.CreateDbContextAsync();
         project = await context.Projects
-            .Select(p => new Project
-                {
-                    Id = p.Id,
-                    ECNumber = p.ECNumber,
-                    ProjectName = p.ProjectName,
-                    Supplier = new Company { Name = p.Supplier.Name }
-                })
+            .Include(p => p.Tooltree)
+                .ThenInclude(t => t.TooltreeData)
+                    .ThenInclude(td => td.Type)
+            .Include(p => p.Supplier)
             .FirstOrDefaultAsync(p => p.Id == ProjectId);
 
         if (project == null)
@@ -120,7 +117,14 @@
         }
 
         HeaderTitle = $"ToolTree ({project.ECNumber} - {project.ProjectName})";
+
+        // Załaduj istniejące dane do tempTooltreeData
+        if (project.Tooltree?.TooltreeData != null && project.Tooltree.TooltreeData.Any())
+        {
+            tempTooltreeData = project.Tooltree.TooltreeData.ToList();
+        }
     }
+
 
     private void GoBack() => NavigationManager.NavigateTo($"/project-details/{ProjectId}");
 
