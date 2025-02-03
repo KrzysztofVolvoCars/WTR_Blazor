@@ -119,7 +119,7 @@
             return;
         }
 
-        HeaderTitle = $"{project.ECNumber} - {project.ProjectName} - ToolTree";
+        HeaderTitle = $"ToolTree ({project.ECNumber} - {project.ProjectName})";
     }
 
     private void GoBack() => NavigationManager.NavigateTo($"/project-details/{ProjectId}");
