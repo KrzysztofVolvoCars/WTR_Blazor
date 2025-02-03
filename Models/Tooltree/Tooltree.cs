@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
 
-namespace WTR_Blazor.Models;
+namespace WTR_Blazor.Models.Tooltree;
 
 public class Tooltree
 {

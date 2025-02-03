@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using WTR_Blazor.Data;
 using WTR_Blazor.Models;
+using WTR_Blazor.Models.Tooltree;
 
 public static class DbInitializer
 {
