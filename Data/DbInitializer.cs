@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using WTR_Blazor.Data;
 using WTR_Blazor.Models;
+using WTR_Blazor.Models.Deliverable;
 using WTR_Blazor.Models.Tooltree;
 
 public static class DbInitializer
@@ -22,6 +23,7 @@ public static class DbInitializer
         await InitializeTooltreeType(context);
         await InitializeProjectTypes(context);
         await InitializeEmployees(context);
+      //  await InitializeDeliverablesAnswerTypes(context);
 
         await context.SaveChangesAsync();
     }
@@ -139,5 +141,58 @@ public static class DbInitializer
             await context.TooltreeTypes.AddRangeAsync(tooltreeType);
         }
     }
+
+    private static async Task InitializeDeliverablesAnswerTypes(ApplicationDbContext context)
+    {
+        if (!await context.DeliverablesAnswerTypes.AnyAsync())
+        {
+            var answerTypes = new List<DeliverablesAnswerType>
+        {
+            new DeliverablesAnswerType
+            {
+                Answer = "NA",
+                Description = "Not applicable",
+                Value = 0,
+                Order = 1,
+                IsActive = true
+            },
+            new DeliverablesAnswerType
+            {
+                Answer = "0",
+                Description = "Not started",
+                Value = 0,
+                Order = 2,
+                IsActive = true
+            },
+            new DeliverablesAnswerType
+            {
+                Answer = "49",
+                Description = "To late",
+                Value = 49,
+                Order = 3,
+                IsActive = true
+            },
+            new DeliverablesAnswerType
+            {
+                Answer = "50",
+                Description = "In progress",
+                Value = 50,
+                Order = 4,
+                IsActive = true
+            },
+            new DeliverablesAnswerType
+            {
+                Answer = "100",
+                Description = "Finished",
+                Value = 100,
+                Order = 5,
+                IsActive = true
+            }
+        };
+
+            await context.DeliverablesAnswerTypes.AddRangeAsync(answerTypes);
+        }
+    }
+
 
 }

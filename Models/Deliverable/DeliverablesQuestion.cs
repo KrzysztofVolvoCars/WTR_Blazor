@@ -19,7 +19,7 @@ public class DeliverablesQuestion
     public virtual DeliverablesQuestionGroup DeliverablesQuestionGroup { get; set; }
     
     public int DeliverablesAnswerTypeId { get; set; }
-    public virtual List<DeliverablesAnswerType> DeliverablesAnswerType { get; set; }
+    public virtual DeliverablesAnswerType DeliverablesAnswerType { get; set; }
 
     public DateTime? UpdatedAt { get; set; }
 

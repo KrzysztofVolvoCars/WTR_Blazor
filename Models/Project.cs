@@ -32,10 +32,10 @@ public class Project
     public virtual Employee? RMResponsible { get; set; }
 
     public int? TooltreeId { get; set; }
-    public virtual WTR_Blazor.Models.Tooltree.Tooltree? Tooltree { get; set; } = new();
+    public virtual WTR_Blazor.Models.Tooltree.Tooltree Tooltree { get; set; }
 
     public int? DeliverablesId { get; set; }
-    public virtual Deliverables? Deliverables { get; set; } = new();
+    public virtual Deliverables Deliverables { get; set; }
 
     public DateTime? StartDate { get; set; } = DateTime.UtcNow;
     public DateTime? Installation { get; set; }

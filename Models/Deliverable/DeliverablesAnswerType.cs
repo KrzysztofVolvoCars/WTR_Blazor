@@ -15,4 +15,7 @@ public class DeliverablesAnswerType
     public int Value { get; set; }
     public int Order { get; set; }
     public bool IsActive { get; set; } = true;
+
+    public int DeliverablesQuestionId { get; set; }
+    public virtual DeliverablesQuestion Question { get; set; }
 }

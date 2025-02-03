@@ -271,14 +271,15 @@ namespace WTR_Blazor.Migrations
                     Description = table.Column<string>(type: "TEXT", nullable: false),
                     Value = table.Column<int>(type: "INTEGER", nullable: false),
                     Order = table.Column<int>(type: "INTEGER", nullable: false),
-                    IsActive = table.Column<bool>(type: "INTEGER", nullable: false)
+                    IsActive = table.Column<bool>(type: "INTEGER", nullable: false),
+                    DeliverablesQuestionId = table.Column<int>(type: "INTEGER", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_DeliverablesAnswerTypes", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_DeliverablesAnswerTypes_DeliverablesQuestions_Id",
-                        column: x => x.Id,
+                        name: "FK_DeliverablesAnswerTypes_DeliverablesQuestions_DeliverablesQuestionId",
+                        column: x => x.DeliverablesQuestionId,
                         principalTable: "DeliverablesQuestions",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -363,6 +364,12 @@ namespace WTR_Blazor.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_DeliverablesAnswerTypes_DeliverablesQuestionId",
+                table: "DeliverablesAnswerTypes",
+                column: "DeliverablesQuestionId",
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_DeliverablesQuestions_QuestionGroupId",

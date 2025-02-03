@@ -68,6 +68,9 @@ namespace WTR_Blazor.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
+                    b.Property<int>("DeliverablesQuestionId")
+                        .HasColumnType("INTEGER");
+
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("TEXT");
@@ -82,6 +85,9 @@ namespace WTR_Blazor.Migrations
                         .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("DeliverablesQuestionId")
+                        .IsUnique();
 
                     b.ToTable("DeliverablesAnswerTypes");
                 });
@@ -487,11 +493,13 @@ namespace WTR_Blazor.Migrations
 
             modelBuilder.Entity("WTR_Blazor.Models.Deliverable.DeliverablesAnswerType", b =>
                 {
-                    b.HasOne("WTR_Blazor.Models.Deliverable.DeliverablesQuestion", null)
-                        .WithMany("DeliverablesAnswerType")
-                        .HasForeignKey("Id")
+                    b.HasOne("WTR_Blazor.Models.Deliverable.DeliverablesQuestion", "Question")
+                        .WithOne("DeliverablesAnswerType")
+                        .HasForeignKey("WTR_Blazor.Models.Deliverable.DeliverablesAnswerType", "DeliverablesQuestionId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Question");
                 });
 
             modelBuilder.Entity("WTR_Blazor.Models.Deliverable.DeliverablesQuestion", b =>
@@ -637,7 +645,8 @@ namespace WTR_Blazor.Migrations
 
             modelBuilder.Entity("WTR_Blazor.Models.Deliverable.DeliverablesQuestion", b =>
                 {
-                    b.Navigation("DeliverablesAnswerType");
+                    b.Navigation("DeliverablesAnswerType")
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("WTR_Blazor.Models.Deliverable.DeliverablesQuestionGroup", b =>
@@ -647,7 +656,8 @@ namespace WTR_Blazor.Migrations
 
             modelBuilder.Entity("WTR_Blazor.Models.Project", b =>
                 {
-                    b.Navigation("Tooltree");
+                    b.Navigation("Tooltree")
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("WTR_Blazor.Models.Tooltree.Tooltree", b =>
