@@ -130,11 +130,48 @@
     private async Task LoadData()
     {
         using var context = await DbFactory.CreateDbContextAsync();
-        projectTypes = await context.ProjectTypes.Where(pt => pt.IsActive).ToListAsync();
-        engineers = await context.Employees.ToListAsync();
-        rmResponsibles = await context.Employees.ToListAsync();
-        companies = await context.Companies.ToListAsync();
+
+        // Wczytywanie danych słownikowych
+        projectTypes = await context.ProjectTypes
+            .Where(pt => pt.IsActive)
+            .OrderBy(pt => pt.Order)
+            .ToListAsync();
+
+        engineers = await context.Employees
+            .Where(e => e.IsActive)
+            .OrderBy(e => e.LastName)
+            .ThenBy(e => e.FirstName)
+            .ToListAsync();
+
+        rmResponsibles = await context.Employees
+            .Where(e => e.IsActive)
+            .OrderBy(e => e.LastName)
+            .ThenBy(e => e.FirstName)
+            .ToListAsync();
+
+        companies = await context.Companies
+            .Where(c => c.IsActive)
+            .OrderBy(c => c.Name)
+            .ToListAsync();
+
+        // Jeśli to edycja istniejącego projektu, wczytaj pełne dane projektu
+        if (Project.Id != 0)
+        {
+            var existingProject = await context.Projects
+                .Include(p => p.Tooltree)
+                .Include(p => p.Engineer)
+                .Include(p => p.Supplier)
+                .Include(p => p.RMResponsible)
+                .Include(p => p.ProjectType)
+                .FirstOrDefaultAsync(p => p.Id == Project.Id);
+
+            if (existingProject != null)
+            {
+                Project = existingProject;
+            }
+        }
     }
+
 
     private Color GetProjectTypeColor(ProjectType type)
     {
@@ -147,14 +184,72 @@
         if (form.IsValid)
         {
             using var context = await DbFactory.CreateDbContextAsync();
-            if (Project.Id == 0)
+
+            if (Project.Id == 0) // Nowy projekt
+            {
+                // Najpierw dodajemy projekt do kontekstu
                 context.Projects.Add(Project);
-            else
+                await context.SaveChangesAsync(); // Zapisujemy, aby otrzymać Id projektu
+
+                // Tworzymy Tooltree z prawidłowym powiązaniem
+                var tooltree = new Tooltree
+                    {
+                        ProjectId = Project.Id,
+                        IsDone = false,
+                        TooltreeData = new List<TooltreeData>(),
+                        TooltreeFiles = new List<TooltreeFile>()
+                    };
+
+                // Dodajemy Tooltree do kontekstu
+                context.Tooltrees.Add(tooltree);
+                await context.SaveChangesAsync();
+
+                // Aktualizujemy projekt o TooltreeId
+                Project.TooltreeId = tooltree.Id;
                 context.Projects.Update(Project);
-            await context.SaveChangesAsync();
+                await context.SaveChangesAsync();
+            }
+            else // Aktualizacja istniejącego projektu
+            {
+                // Sprawdzamy czy projekt ma już Tooltree
+                var existingProject = await context.Projects
+                    .Include(p => p.Tooltree)
+                    .FirstOrDefaultAsync(p => p.Id == Project.Id);
+
+                if (existingProject != null)
+                {
+                    if (existingProject.Tooltree == null)
+                    {
+                        // Jeśli nie ma Tooltree, tworzymy nowy
+                        var tooltree = new Tooltree
+                            {
+                                ProjectId = Project.Id,
+                                IsDone = false,
+                                TooltreeData = new List<TooltreeData>(),
+                                TooltreeFiles = new List<TooltreeFile>()
+                            };
+
+                        context.Tooltrees.Add(tooltree);
+                        await context.SaveChangesAsync();
+
+                        Project.TooltreeId = tooltree.Id;
+                    }
+                    else
+                    {
+                        // Jeśli Tooltree istnieje, zachowujemy jego Id
+                        Project.TooltreeId = existingProject.TooltreeId;
+                    }
+                }
+
+                // Aktualizujemy projekt
+                context.Entry(existingProject).CurrentValues.SetValues(Project);
+                await context.SaveChangesAsync();
+            }
+
             MudDialog.Close(DialogResult.Ok(true));
         }
     }
+
 
     private void Cancel() => MudDialog.Cancel();
 }

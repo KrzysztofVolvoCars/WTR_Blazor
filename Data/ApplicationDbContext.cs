@@ -64,10 +64,10 @@ public class ApplicationDbContext : DbContext
             .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<Project>()
-       .HasOne(p => p.Tooltree)
-       .WithOne(t => t.Project)
-       .HasForeignKey<Tooltree>(t => t.ProjectId)
-       .OnDelete(DeleteBehavior.Cascade);
+           .HasOne(p => p.Tooltree)
+           .WithOne(t => t.Project)
+           .HasForeignKey<Tooltree>(t => t.ProjectId)
+           .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<Tooltree>()
             .HasMany(t => t.TooltreeData)
@@ -86,7 +86,6 @@ public class ApplicationDbContext : DbContext
             .IsUnique();
 
     }
-
 }
 
 

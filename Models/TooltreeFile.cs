@@ -16,6 +16,7 @@ public class TooltreeFile
     public DateTime Created { get; set; } = DateTime.UtcNow;
     [Required]
     public string OrginalName { get; set; }
+    // Klucz obcy dla relacji 1:N
     public int TooltreeId { get; set; }
     public virtual Tooltree Tooltree { get; set; }
 }

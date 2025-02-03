@@ -287,55 +287,70 @@
 
             try
             {
-                using var context = await DbFactory.CreateDbContextAsync();
-
-                // Usuwanie istniejących danych dla tego projektu
-                var existingData = await context.TooltreeDatas
-                    .Where(t => t.Tooltree.ProjectId == ProjectId)
-                    .ToListAsync();
-                context.TooltreeDatas.RemoveRange(existingData);
-
-                // Tworzenie nowego wpisu Tooltree
-                var tooltree = new Tooltree
-                    {
-                        ProjectId = project.Id,
-                        IsDone = false
-                    };
-                context.Tooltrees.Add(tooltree);
-
-                // Dodawanie nowych danych
-                foreach (var data in tempTooltreeData)
+                using (var context = await DbFactory.CreateDbContextAsync())
                 {
-                    var existingType = await context.TooltreeTypes.FirstOrDefaultAsync(t => t.Code == data.Type.Code);
-                    if (existingType == null)
+                    // Usuwanie istniejących danych dla tego projektu
+                    var existingData = await context.TooltreeDatas
+                        .Where(t => t.Tooltree.ProjectId == ProjectId)
+                        .ToListAsync();
+                    context.TooltreeDatas.RemoveRange(existingData);
+
+                    // Pobranie projektu z bazy
+                    var project = context.Projects.FirstOrDefault(p => p.Id == ProjectId);
+
+
+                    // Jeśli projekt nie ma jeszcze przypisanej Tooltree, tworzymy ją
+                    if (project.Tooltree is null)
                     {
-                        context.TooltreeTypes.Add(data.Type);
+                        project.Tooltree = new Tooltree
+                            {
+                                ProjectId = project.Id,
+                                IsDone = false
+                            };
+
+                        // Dodajemy nowy Tooltree do kontekstu
+                        context.Tooltrees.Add(project.Tooltree);
+                        await context.SaveChangesAsync(); // Zapewniamy przypisanie wygenerowanego identyfikatora
                     }
-                    else
+
+                    // 3. Pobieramy projekt, któremu chcemy przypisać Tooltree
+                    if (project != null)
                     {
-                        data.Type = existingType;
+                        // 4. Przypisujemy Id wygenerowanego Tooltree do projektu
+                        project.TooltreeId = project.Tooltree.Id;
+                        project.Tooltree = project.Tooltree; // opcjonalnie, jeśli chcesz także referencję do obiektu
+
+                        // 5. Zapisujemy zmiany w projekcie
+                        await context.SaveChangesAsync();
                     }
+
+                    // Przypisujemy każdemu rekordowi TooltreeData właściwość TooltreeId lub dodajemy do kolekcji
+                    // foreach (var data in tempTooltreeData)
+                    // {
+                    //     data.TooltreeId = project.Tooltree.Id;
+                    //     // Opcjonalnie: data.Tooltree = project.Tooltree;
+                    // }
+
+                    // // Dodajemy nowe rekordy TooltreeData do kontekstu
+                    // await context.TooltreeDatas.AddRangeAsync(tempTooltreeData);
+
+                    // Jeżeli chcesz również dodać plik:
+                    // var tooltreeFile = new TooltreeFile
+                    // {
+                    //     Name = "nazwa_pliku.xlsx", // lub inna logika
+                    //     FileData = uploadedFileData,
+                    //     FileSize = uploadedFileData.Length,
+                    //     OrginalName = uploadedFileName,
+                    //     TooltreeId = project.Tooltree.Id,
+                    //     Tooltree = project.Tooltree
+                    // };
+                    // context.TooltreeFiles.Add(tooltreeFile);
+
+                    await context.SaveChangesAsync();
+
+                    Snackbar.Add("Data saved successfully", Severity.Success);
+                    tempTooltreeData.Clear(); // Czyszczenie tymczasowych danych po zapisie
                 }
-
-
-                await context.TooltreeDatas.AddRangeAsync(tempTooltreeData);
-
-                // Zapisywanie pliku
-                var tooltreeFile = new TooltreeFile
-                    {
-                        Name = $"Tooltree-{project.ECNumber}-{project.ProjectName}.xlsx",
-                        FileData = uploadedFileData,
-                        FileSize = uploadedFileData.Length,
-                        OrginalName = uploadedFileName,
-                        Id = project.Id,
-                        Tooltree = tooltree
-                    };
-                context.TooltreeFiles.Add(tooltreeFile);
-
-                await context.SaveChangesAsync();
-
-                Snackbar.Add("Data saved successfully", Severity.Success);
-                tempTooltreeData.Clear(); // Czyszczenie tymczasowych danych po zapisie
             }
             catch (Exception ex)
             {

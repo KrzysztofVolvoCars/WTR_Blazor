@@ -146,6 +146,9 @@ namespace WTR_Blazor.Migrations
                     b.Property<int?>("SupplierId")
                         .HasColumnType("INTEGER");
 
+                    b.Property<int?>("TooltreeId")
+                        .HasColumnType("INTEGER");
+
                     b.HasKey("Id");
 
                     b.HasIndex("EngineerId");
@@ -310,15 +313,10 @@ namespace WTR_Blazor.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<int?>("ProjectId")
-                        .HasColumnType("INTEGER");
-
                     b.Property<int>("TooltreeId")
                         .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("ProjectId");
 
                     b.HasIndex("TooltreeId");
 
@@ -435,10 +433,6 @@ namespace WTR_Blazor.Migrations
 
             modelBuilder.Entity("WTR_Blazor.Models.TooltreeFile", b =>
                 {
-                    b.HasOne("WTR_Blazor.Models.Project", null)
-                        .WithMany("TooltreeFiles")
-                        .HasForeignKey("ProjectId");
-
                     b.HasOne("WTR_Blazor.Models.Tooltree", "Tooltree")
                         .WithMany("TooltreeFiles")
                         .HasForeignKey("TooltreeId")
@@ -451,8 +445,6 @@ namespace WTR_Blazor.Migrations
             modelBuilder.Entity("WTR_Blazor.Models.Project", b =>
                 {
                     b.Navigation("Tooltree");
-
-                    b.Navigation("TooltreeFiles");
                 });
 
             modelBuilder.Entity("WTR_Blazor.Models.Tooltree", b =>
