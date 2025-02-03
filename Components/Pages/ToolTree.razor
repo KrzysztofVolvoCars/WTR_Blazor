@@ -336,6 +336,25 @@
                     await context.SaveChangesAsync();
                     Snackbar.Add("Data saved successfully", Severity.Success);
 
+                    // Save Excel file if exists
+                    if (uploadedFileData != null && !string.IsNullOrEmpty(uploadedFileName))
+                    {
+                        var tooltreeFile = new TooltreeFile
+                            {
+                                Name = $"Tooltree_{DateTime.UtcNow:yyyyMMdd_HHmmss}_{uploadedFileName}",
+                                OrginalName = uploadedFileName,
+                                FileData = uploadedFileData,
+                                FileSize = uploadedFileData.Length,
+                                Created = DateTime.UtcNow,
+                                TooltreeId = project.Tooltree.Id,
+                                Tooltree = project.Tooltree
+                            };
+
+                        context.TooltreeFiles.Add(tooltreeFile);
+                    }
+                    await context.SaveChangesAsync();
+                    Snackbar.Add("Data saved successfully", Severity.Success);
+
                     // Clear temporary data
                     
                     uploadedFileData = null;
