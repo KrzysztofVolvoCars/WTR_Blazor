@@ -6,7 +6,7 @@ public class ProjectValidator : AbstractValidator<Project>
 {
     public ProjectValidator()
     {
-        RuleFor(x => x.ECNumber)
+        RuleFor(x => x.EcNumber)
             .NotEmpty().WithMessage("EC Number is required")
             .MaximumLength(100).WithMessage("EC Number cannot exceed 100 characters");
 
@@ -14,7 +14,7 @@ public class ProjectValidator : AbstractValidator<Project>
             .NotEmpty().WithMessage("Project name is required")
             .MaximumLength(200).WithMessage("Project name cannot exceed 200 characters");
 
-        RuleFor(x => x.PowerBI_URL)
+        RuleFor(x => x.PowerBiUrl)
     .MaximumLength(500).WithMessage("PowerBI URL cannot exceed 500 characters")
     .Must(uri => string.IsNullOrEmpty(uri) || Uri.TryCreate(uri, UriKind.Absolute, out _))
     .WithMessage("PowerBI URL must be a valid URL");
@@ -25,7 +25,7 @@ public class ProjectValidator : AbstractValidator<Project>
         RuleFor(x => x.SupplierId)
             .NotEmpty().WithMessage("Supplier is required");
 
-        RuleFor(x => x.RMResponsibleId)
+        RuleFor(x => x.RmTechniker)
             .NotEmpty().WithMessage("R&M Responsible is required");
 
         RuleFor(x => x.StartDate)
@@ -36,7 +36,7 @@ public class ProjectValidator : AbstractValidator<Project>
             .GreaterThan(x => x.StartDate)
             .WithMessage("Installation date must be after Start Date");
 
-        RuleFor(x => x.SOP)
+        RuleFor(x => x.Sop)
             .NotEmpty().WithMessage("SOP date is required")
             .GreaterThan(x => x.Installation)
             .WithMessage("SOP date must be after Installation date");

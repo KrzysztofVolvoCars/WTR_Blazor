@@ -43,10 +43,10 @@
                             <MudText Color="Color.Error" Class="mt-1">@logoValidationMessage</MudText>
                         }
 
-                        @if (Company.LogoData != null && Company.LogoData.Length > 0)
+                        @if (Company.PhotoData != null && Company.PhotoData.Length > 0)
                         {
                             <MudPaper Class="d-flex align-center gap-4 pa-4 mt-4" Elevation="0">
-                                <MudImage Src="@($"data:image/png;base64,{Convert.ToBase64String(Company.LogoData)}")"
+                                <MudImage Src="@($"data:image/png;base64,{Convert.ToBase64String(Company.PhotoData)}")"
                                           Width="250"
                                           Height="100"
                                           ObjectFit="ObjectFit.Cover"
@@ -72,7 +72,7 @@
 
 @code {
     [CascadingParameter] IMudDialogInstance MudDialog { get; set; }
-    [Parameter] public Company Company { get; set; } = new();
+    [Parameter] public Company Company { get; set; }
     private string logoValidationMessage;
 
     private MudForm form;
@@ -82,13 +82,13 @@
     {
         using var ms = new MemoryStream();
         await file.OpenReadStream().CopyToAsync(ms);
-        Company.LogoData = ms.ToArray();
+        Company.PhotoData = ms.ToArray();
         StateHasChanged();
     }
 
     private void ClearLogo()
     {
-        Company.LogoData = null;
+        Company.PhotoData = null;
         StateHasChanged();
     }
 

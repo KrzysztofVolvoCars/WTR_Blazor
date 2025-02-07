@@ -1,8 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using WTR_Blazor.Models;
-using WTR_Blazor.Models.Deliverable;
- 
-using WTR_Blazor.Models.Tooltree;
+
+using WTR_Blazor.Models.DeliverableModels;
+
+using WTR_Blazor.Models.TooltreeModels;
 
 namespace WTR_Blazor.Data;
 
@@ -23,121 +24,182 @@ public class ApplicationDbContext : DbContext
     public DbSet<TooltreeFile> TooltreeFiles { get; set; }
     public DbSet<TooltreeType> TooltreeTypes { get; set; }
 
+
     // New DbSet properties
-    public DbSet<Deliverables> Deliverables { get; set; }
-    public DbSet<DeliverablesAnswerType> DeliverablesAnswerTypes { get; set; }
-    public DbSet<DeliverablesQuestion> DeliverablesQuestions { get; set; }
-    public DbSet<DeliverablesQuestionGroup> DeliverablesQuestionGroups { get; set; }
-    public DbSet<DeliverablesTooltree> DeliverablesTooltrees { get; set; }
+    public DbSet<Deliverable> Deliverables { get; set; }
+    public DbSet<DeliverableQuestionGroup> DeliverableQuestionGroups { get; set; }
+    public DbSet<DeliverableQuestion> DeliverableQuestions { get; set; }
+    public DbSet<DeliverableAnswerType> DeliverableAnswerTypes { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        // Project configuration
+        modelBuilder.Entity<Project>(entity =>
+        {
+            entity.ToTable("Projects");
+
+            entity.Property(e => e.EcNumber)
+                .IsRequired()
+                .HasMaxLength(50);
+
+            entity.Property(e => e.ProjectName)
+                .IsRequired()
+                .HasMaxLength(100);
+
+            entity.Property(e => e.PowerBiUrl)
+                .HasMaxLength(500);
+
+            entity.HasOne(p => p.Engineer)
+                .WithMany()
+                .HasForeignKey(p => p.EngineerId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasOne(p => p.Supplier)
+                .WithMany()
+                .HasForeignKey(p => p.SupplierId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasOne(p => p.ProjectPhase)
+                .WithMany(pp => pp.Projects)
+                .HasForeignKey(p => p.ProjectPhaseId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasOne(p => p.ProjectType)
+                .WithMany(pt => pt.Projects)
+                .HasForeignKey(p => p.ProjectTypeId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasIndex(e => e.EcNumber).IsUnique();
+        });
+
+        // Employee configuration
+        modelBuilder.Entity<Employee>(entity =>
+        {
+            entity.ToTable("Employees");
+
+            entity.Property(e => e.FirstName)
+                .IsRequired()
+                .HasMaxLength(50);
+
+            entity.Property(e => e.LastName)
+                .IsRequired()
+                .HasMaxLength(50);
+
+            entity.Property(e => e.Email)
+                .IsRequired()
+                .HasMaxLength(100);
+
+            entity.Property(e => e.PhoneNumber)
+                .HasMaxLength(15);
+
+            entity.HasOne(e => e.Company)
+                .WithMany(c => c.Employees)
+                .HasForeignKey(e => e.CompanyId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasOne(e => e.Position)
+                .WithMany(p => p.Employees)
+                .HasForeignKey(e => e.PositionId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasIndex(e => e.Email).IsUnique();
+        });
+
+        // Company configuration
+        modelBuilder.Entity<Company>(entity =>
+        {
+            entity.ToTable("Companies");
+
+            entity.Property(e => e.Name)
+                .IsRequired()
+                .HasMaxLength(100);
+ 
+
+            entity.HasIndex(e => e.Name).IsUnique();
+        });
+
+        // Tooltree configuration
+        modelBuilder.Entity<Tooltree>(entity =>
+        {
+            entity.ToTable("Tooltrees");
+
+            entity.HasOne(t => t.Project)
+                .WithOne(p => p.Tooltree)
+                .HasForeignKey<Tooltree>(t => t.ProjectId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        // TooltreeData configuration
+        modelBuilder.Entity<TooltreeData>(entity =>
+        {
+            entity.ToTable("TooltreeDatas");
+
+            entity.Property(e => e.PlcStationEquipment)
+                .IsRequired()
+                .HasMaxLength(100);
+
+            entity.Property(e => e.MachineNumber)
+                .IsRequired()
+                .HasMaxLength(50);
+
+            entity.Property(e => e.Station)
+                .HasMaxLength(50);
+
+            entity.Property(e => e.AssetCode)
+                .HasMaxLength(50);
+
+            entity.HasOne(td => td.Type)
+                .WithMany(tt => tt.TooltreeDatas)
+                .HasForeignKey(td => td.TypeId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasOne(td => td.Tooltree)
+                .WithMany(t => t.TooltreeDatas)
+                .HasForeignKey(td => td.TooltreeId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        // DeliverableQuestionGroup configuration
+        modelBuilder.Entity<DeliverableQuestionGroup>(entity =>
+        {
+            entity.ToTable("DeliverableQuestionGroups");
+
+            entity.Property(e => e.Name)
+                .IsRequired()
+                .HasMaxLength(100);
+
+            entity.Property(e => e.Description)
+                .HasMaxLength(500);
+
+            entity.HasOne(dqg => dqg.TooltreeData)
+                .WithMany()
+                .HasForeignKey(dqg => dqg.TooltreeDataId)
+                .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        // DeliverableQuestion configuration
+        modelBuilder.Entity<DeliverableQuestion>(entity =>
+        {
+            entity.ToTable("DeliverableQuestions");
+
+            entity.Property(e => e.Question)
+                .IsRequired()
+                .HasMaxLength(500);
+
+            entity.Property(e => e.Description)
+                .HasMaxLength(500);
+
+            entity.HasOne(dq => dq.QuestionGroup)
+                .WithMany(dqg => dqg.Questions)
+                .HasForeignKey(dq => dq.QuestionGroupId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasMany(dq => dq.PossibleAnswers)
+                .WithMany(dat => dat.Questions)
+                .UsingEntity(j => j.ToTable("DeliverableQuestionAnswerTypes"));
+        });
+
         base.OnModelCreating(modelBuilder);
-
-        modelBuilder.Entity<Project>()
-            .HasOne(p => p.Engineer)
-            .WithMany()
-            .HasForeignKey(p => p.EngineerId)
-            .OnDelete(DeleteBehavior.Restrict);
-
-        modelBuilder.Entity<Project>()
-            .HasOne(p => p.RMResponsible)
-            .WithMany()
-            .HasForeignKey(p => p.RMResponsibleId)
-            .OnDelete(DeleteBehavior.Restrict);
-
-        modelBuilder.Entity<Project>()
-            .HasOne(p => p.Supplier)
-            .WithMany()
-            .HasForeignKey(p => p.SupplierId)
-            .OnDelete(DeleteBehavior.Restrict);
-
-        modelBuilder.Entity<Project>()
-            .HasOne(p => p.ProjectPhase)
-            .WithMany()
-            .HasForeignKey(p => p.ProjectPhaseId)
-            .OnDelete(DeleteBehavior.Restrict);
-
-        modelBuilder.Entity<Project>()
-            .HasOne(p => p.ProjectType)
-            .WithMany()
-            .HasForeignKey(p => p.ProjectTypeId)
-            .OnDelete(DeleteBehavior.Restrict);
-
-        modelBuilder.Entity<Project>()
-           .HasOne(p => p.Tooltree)
-           .WithOne(t => t.Project)
-           .HasForeignKey<Tooltree>(t => t.ProjectId)
-           .OnDelete(DeleteBehavior.Cascade);
-
-        modelBuilder.Entity<Project>()
-            .HasOne(p => p.Deliverables)
-            .WithOne(d => d.Project)
-            .HasForeignKey<Project>(p => p.DeliverablesId)
-            .IsRequired();
-
-        modelBuilder.Entity<Employee>()
-            .HasIndex(e => e.Email)
-            .IsUnique();
-
-        modelBuilder.Entity<Tooltree>()
-            .HasOne(t => t.Project)
-            .WithOne(p => p.Tooltree)
-            .HasForeignKey<Tooltree>(t => t.ProjectId)
-            .OnDelete(DeleteBehavior.Cascade);
-
-
-
-        modelBuilder.Entity<Tooltree>()
-            .HasMany(t => t.TooltreeData)
-            .WithOne(td => td.Tooltree)
-            .HasForeignKey(td => td.TooltreeId)
-            .OnDelete(DeleteBehavior.Cascade);
-
-        modelBuilder.Entity<Tooltree>()
-            .HasMany(t => t.TooltreeFiles)
-            .WithOne(tf => tf.Tooltree)
-            .HasForeignKey(tf => tf.TooltreeId)
-            .OnDelete(DeleteBehavior.Cascade);
-
-        modelBuilder.Entity<TooltreeType>()
-            .HasIndex(t => t.Code)
-            .IsUnique();
-
-        // Configure one-to-one relationship between Project and Deliverables
-
-
-        modelBuilder.Entity<Deliverables>()
-            .HasOne(d => d.Project)
-            .WithOne(p => p.Deliverables);
-
-        // Configure DeliverablesTooltree relationship
-        modelBuilder.Entity<Deliverables>()
-            .HasMany(d => d.DeliverablesTooltree)
-            .WithOne()
-            .HasForeignKey(d => d.Id)
-            .OnDelete(DeleteBehavior.Cascade);
-
-        // Configure DeliverablesQuestionGroup relationship
-        modelBuilder.Entity<Deliverables>()
-            .HasMany(d => d.DeliverablesQuestionGroup)
-            .WithOne()
-            .HasForeignKey(d => d.Id)
-            .OnDelete(DeleteBehavior.Cascade);
-
-        // Configure DeliverablesQuestion relationships
-        modelBuilder.Entity<DeliverablesQuestionGroup>()
-            .HasMany(g => g.Question)
-            .WithOne(q => q.DeliverablesQuestionGroup)
-            .HasForeignKey(q => q.QuestionGroupId)
-            .OnDelete(DeleteBehavior.Cascade);
-
-        // Configure 1:N relationship between DeliverablesQuestion and DeliverablesAnswerType
-        modelBuilder.Entity<DeliverablesQuestion>()
-              .HasOne(q => q.DeliverablesAnswerType)
-              .WithOne(a => a.Question)
-              .HasForeignKey<DeliverablesAnswerType>(a => a.DeliverablesQuestionId)
-              .OnDelete(DeleteBehavior.Cascade);
     }
 }
 

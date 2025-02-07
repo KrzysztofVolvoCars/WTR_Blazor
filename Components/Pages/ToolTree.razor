@@ -5,7 +5,7 @@
 @inject ISnackbar Snackbar
 @inject IDialogService DialogService
 @using Microsoft.AspNetCore.Components.Forms
-@using WTR_Blazor.Models.Tooltree
+@using WTR_Blazor.Models.TooltreeModels
 
 <PageTitle>@HeaderTitle</PageTitle>
 
@@ -80,9 +80,9 @@
             <MudPaper Elevation="3" Class="mt-4 pa-4">
                 <MudDataGrid Items="@tempTooltreeData" Dense="true" Hover="true" Bordered="true" Striped="true">
                     <Columns>
-                        <PropertyColumn Property="x => x.PLCStationEquipment" Title="PLC Station Equipment" />
+                        <PropertyColumn Property="x => x.PlcStationEquipment" Title="PLC Station Equipment" />
                         <PropertyColumn Property="x => x.MachineNumber" Title="Machine Number" />
-                        <PropertyColumn Property="x => x.PLC" Title="PLC" />
+                        <PropertyColumn Property="x => x.Plc" Title="PLC" />
                         <PropertyColumn Property="x => x.Station" Title="Station" />
                         <PropertyColumn Property="x => x.AssetCode" Title="Asset Code" />
                         <PropertyColumn Property="x => x.ToolNumber" Title="Tool Number" />
@@ -131,7 +131,7 @@
         using var context = await DbFactory.CreateDbContextAsync();
         project = await context.Projects
             .Include(p => p.Tooltree)
-                .ThenInclude(t => t.TooltreeData)
+                .ThenInclude(t => t.TooltreeDatas)
                     .ThenInclude(td => td.Type)
             .Include(p => p.Supplier)
             .FirstOrDefaultAsync(p => p.Id == ProjectId);
@@ -144,12 +144,12 @@
             return;
         }
 
-        HeaderTitle = $"ToolTree ({project.ECNumber} - {project.ProjectName})";
+        HeaderTitle = $"ToolTree ({project.EcNumber} - {project.ProjectName})";
 
         // Załaduj istniejące dane do tempTooltreeData
-        if (project.Tooltree?.TooltreeData != null && project.Tooltree.TooltreeData.Any())
+        if (project.Tooltree?.TooltreeDatas != null && project.Tooltree.TooltreeDatas.Any())
         {
-            tempTooltreeData = project.Tooltree.TooltreeData.ToList();
+            tempTooltreeData = project.Tooltree.TooltreeDatas.ToList();
             isNewDataLoaded = false;
         }
     }
@@ -178,7 +178,7 @@
                 {
                     worksheet.AutoFilter?.Clear();
                     worksheet.Cell("C2").Value = project.Supplier.Name;
-                    worksheet.Cell("C4").Value = $"{project.ECNumber}-{project.ProjectName}";
+                    worksheet.Cell("C4").Value = $"{project.EcNumber}-{project.ProjectName}";
 
                     var saveOptions = new SaveOptions
                     {
@@ -192,7 +192,7 @@
 
             stream.Position = 0;
             var streamRef = new DotNetStreamReference(stream);
-            await JS.InvokeVoidAsync("downloadFileFromStream", $"Tooltree-{project.ECNumber}-{project.ProjectName}.xlsm", streamRef);
+            await JS.InvokeVoidAsync("downloadFileFromStream", $"Tooltree-{project.EcNumber}-{project.ProjectName}.xlsm", streamRef);
         }
         catch (Exception ex)
         {
@@ -273,9 +273,9 @@
 
                 var tooltreeData = new TooltreeData
                     {
-                        PLCStationEquipment = row.Cell(1).Value.ToString(),
+                        PlcStationEquipment = row.Cell(1).Value.ToString(),
                         MachineNumber = row.Cell(2).Value.ToString(),
-                        PLC = row.Cell(3).Value.ToString(),
+                        Plc = row.Cell(3).Value.ToString(),
                         Station = row.Cell(4).Value.ToString(),
                         AssetCode = row.Cell(5).Value.ToString(),
                         ToolNumber = row.Cell(6).Value.ToString(),
@@ -326,7 +326,7 @@
                     // Load project with all necessary relationships
                     var project = await context.Projects
                         .Include(p => p.Tooltree)
-                            .ThenInclude(t => t.TooltreeData)
+                            .ThenInclude(t => t.TooltreeDatas)
                                 .ThenInclude(td => td.Type)
                         .FirstOrDefaultAsync(p => p.Id == ProjectId);
 
@@ -348,9 +348,9 @@
                     }
 
                     // Remove existing TooltreeData
-                    if (project.Tooltree.TooltreeData.Any())
+                    if (project.Tooltree.TooltreeDatas.Any())
                     {
-                        context.TooltreeDatas.RemoveRange(project.Tooltree.TooltreeData);
+                        context.TooltreeDatas.RemoveRange(project.Tooltree.TooltreeDatas);
                     }
 
                     // Add new TooltreeData
@@ -379,7 +379,7 @@
                                 OrginalName = uploadedFileName,
                                 FileData = uploadedFileData,
                                 FileSize = uploadedFileData.Length,
-                                Created = DateTime.UtcNow,
+                                CreatedAt = DateTime.UtcNow,
                                 TooltreeId = project.Tooltree.Id,
                                 Tooltree = project.Tooltree
                             };

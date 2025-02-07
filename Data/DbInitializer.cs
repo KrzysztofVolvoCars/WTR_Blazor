@@ -1,8 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using WTR_Blazor.Data;
 using WTR_Blazor.Models;
-using WTR_Blazor.Models.Deliverable;
-using WTR_Blazor.Models.Tooltree;
+using WTR_Blazor.Models.DeliverableModels;
+using WTR_Blazor.Models.TooltreeModels;
 
 public static class DbInitializer
 {
@@ -142,13 +142,13 @@ public static class DbInitializer
         }
     }
 
-    private static async Task InitializeDeliverablesAnswerTypes(ApplicationDbContext context)
+    private static async Task InitializeDeliverableAnswerTypes(ApplicationDbContext context)
     {
-        if (!await context.DeliverablesAnswerTypes.AnyAsync())
+        if (!await context.DeliverableAnswerTypes.AnyAsync())
         {
-            var answerTypes = new List<DeliverablesAnswerType>
+            var answerTypes = new List<DeliverableAnswerType>
         {
-            new DeliverablesAnswerType
+            new DeliverableAnswerType
             {
                 Answer = "NA",
                 Description = "Not applicable",
@@ -156,7 +156,7 @@ public static class DbInitializer
                 Order = 1,
                 IsActive = true
             },
-            new DeliverablesAnswerType
+            new DeliverableAnswerType
             {
                 Answer = "0",
                 Description = "Not started",
@@ -164,7 +164,7 @@ public static class DbInitializer
                 Order = 2,
                 IsActive = true
             },
-            new DeliverablesAnswerType
+            new DeliverableAnswerType
             {
                 Answer = "49",
                 Description = "To late",
@@ -172,7 +172,7 @@ public static class DbInitializer
                 Order = 3,
                 IsActive = true
             },
-            new DeliverablesAnswerType
+            new DeliverableAnswerType
             {
                 Answer = "50",
                 Description = "In progress",
@@ -180,7 +180,7 @@ public static class DbInitializer
                 Order = 4,
                 IsActive = true
             },
-            new DeliverablesAnswerType
+            new DeliverableAnswerType
             {
                 Answer = "100",
                 Description = "Finished",
@@ -190,7 +190,7 @@ public static class DbInitializer
             }
         };
 
-            await context.DeliverablesAnswerTypes.AddRangeAsync(answerTypes);
+            await context.DeliverableAnswerTypes.AddRangeAsync(answerTypes);
         }
     }
 

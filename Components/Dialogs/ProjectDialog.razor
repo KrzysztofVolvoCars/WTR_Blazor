@@ -1,57 +1,64 @@
-﻿@using WTR_Blazor.Models.Tooltree
+﻿@using WTR_Blazor.Models.TooltreeModels
 @inject IDbContextFactory<ApplicationDbContext> DbFactory
+@inject IDialogService DialogService
 
 <MudDialog>
     <DialogContent>
+        <MudOverlay Visible="@isProcessing" DarkBackground="true">
+            <MudProgressCircular Color="Color.Primary" Indeterminate="true" Size="Size.Large" />
+        </MudOverlay>
+
         <MudForm Model="@Project" @ref="form" Validation="@(ProjectValidator.ValidateValue)">
             <MudPaper Class="pa-4" Elevation="0">
                 <MudGrid Spacing="2">
                     <MudItem xs="12" sm="6">
-                        <MudTextField @bind-Value="Project.ECNumber"
-                                      Label="EC Number"
-                                      For="@(() => Project.ECNumber)"
-                                      Immediate="true"
-                                      HelperText="Required field"
-                                      Counter="100" />
+                        <MudTextField @bind-Value="Project.EcNumber"
+                        Label="EC Number"
+                        For="@(() => Project.EcNumber)"
+                        Required="true"
+                        RequiredError="EC Number is required"
+                        Immediate="true"
+                        Counter="50" />
                     </MudItem>
 
                     <MudItem xs="12" sm="6">
                         <MudTextField @bind-Value="Project.ProjectName"
-                                      Label="Project Name"
-                                      For="@(() => Project.ProjectName)"
-                                      Immediate="true"
-                                      HelperText="Required field"
-                                      Counter="200" />
+                        Label="Project Name"
+                        For="@(() => Project.ProjectName)"
+                        Required="true"
+                        RequiredError="Project Name is required"
+                        Immediate="true"
+                        Counter="100" />
                     </MudItem>
 
                     <MudItem xs="12">
-                        <MudTextField @bind-Value="Project.PowerBI_URL"
-                                      Label="PowerBI URL"
-                                      For="@(() => Project.PowerBI_URL)"
-                                      Immediate="true"
-                                      HelperText="Optional - must be a valid URL"
-                                      Adornment="Adornment.Start"
-                                      AdornmentIcon="@Icons.Custom.Brands.MicrosoftAzure"
-                                      Counter="500" />
+                        <MudTextField @bind-Value="Project.PowerBiUrl"
+                        Label="PowerBI URL"
+                        For="@(() => Project.PowerBiUrl)"
+                        Immediate="true"
+                        HelperText="Optional - must be a valid URL"
+                        Adornment="Adornment.Start"
+                        AdornmentIcon="@Icons.Custom.Brands.MicrosoftAzure"
+                        Counter="500" />
                     </MudItem>
 
                     <MudItem xs="12" sm="6">
-                        <MudSelect T="int?" @bind-Value="Project.EngineerId"
-                                   Label="Engineer"
-                                   For="@(() => Project.EngineerId)">
-                            <MudSelectItem T="int?" Value="null">None</MudSelectItem>
+                        <MudSelect T="int" @bind-Value="Project.EngineerId"
+                        Label="Engineer"
+                        Required="true"
+                        RequiredError="Engineer is required"
+                        For="@(() => Project.EngineerId)">
                             @foreach (var engineer in engineers)
                             {
-                                <MudSelectItem T="int?" Value="@engineer.Id">@($"{engineer.FirstName} {engineer.LastName}")</MudSelectItem>
+                                <MudSelectItem T="int" Value="@engineer.Id">@($"{engineer.FirstName} {engineer.LastName}")</MudSelectItem>
                             }
                         </MudSelect>
                     </MudItem>
 
                     <MudItem xs="12" sm="6">
                         <MudSelect T="int?" @bind-Value="Project.SupplierId"
-                                   Label="Supplier"
-                                   For="@(() => Project.SupplierId)">
-                            <MudSelectItem T="int?" Value="null">None</MudSelectItem>
+                        Label="Supplier"
+                        For="@(() => Project.SupplierId)">
                             @foreach (var company in companies)
                             {
                                 <MudSelectItem T="int?" Value="@company.Id">@company.Name</MudSelectItem>
@@ -60,67 +67,80 @@
                     </MudItem>
 
                     <MudItem xs="12" sm="6">
-                        <MudSelect T="int?" @bind-Value="Project.RMResponsibleId"
-                                   Label="R&M Responsible"
-                                   For="@(() => Project.RMResponsibleId)">
-                            <MudSelectItem T="int?" Value="null">None</MudSelectItem>
+                        <MudSelect T="int" @bind-Value="Project.RmTechnikerId"
+                        Label="R&M Responsible"
+                        Required="true"
+                        RequiredError="R&M Responsible is required"
+                        For="@(() => Project.RmTechnikerId)">
                             @foreach (var responsible in rmResponsibles)
                             {
-                                <MudSelectItem T="int?" Value="@responsible.Id">@($"{responsible.FirstName} {responsible.LastName}")</MudSelectItem>
+                                <MudSelectItem T="int" Value="@responsible.Id">@($"{responsible.FirstName} {responsible.LastName}")</MudSelectItem>
                             }
                         </MudSelect>
                     </MudItem>
-                
-<MudItem xs="12" Class="my-4">
-    
-        <MudText Typo="Typo.subtitle1" Class="mb-2">Project Type</MudText>
-        <MudRadioGroup T="int?" @bind-Value="Project.ProjectTypeId" For="@(() => Project.ProjectTypeId)">
-            @foreach (var type in projectTypes.OrderBy(pt => pt.Order))
-            {
-                <div class="d-flex align-center mb-2">
-                    <MudRadio Class="me-8" T="int?" Value="@type.Id" Color="@GetProjectTypeColor(type)" Dense="true">@type.Name</MudRadio>
-                </div>
-            }
-        </MudRadioGroup>
-    
-</MudItem>
 
+                    <MudItem xs="12" Class="my-4">
+                        <MudText Typo="Typo.subtitle1" Class="mb-2">Project Type</MudText>
+                        <MudRadioGroup T="int?" @bind-Value="Project.ProjectTypeId"
+                        Required="true"
+                        RequiredError="Project Type is required"
+                        For="@(() => Project.ProjectTypeId)">
+                            @foreach (var type in projectTypes.OrderBy(pt => pt.Order))
+                            {
+                                <div class="d-flex align-center mb-2">
+                                    <MudRadio Class="me-8" T="int?" Value="@type.Id" Color="@GetProjectTypeColor(type)" Dense="true">
+                                        @type.Name
+                                    </MudRadio>
+                                </div>
+                            }
+                        </MudRadioGroup>
+                    </MudItem>
 
                     <MudItem xs="12" sm="4">
-                        <MudDatePicker @bind-Date="Project.StartDate"
-                                       Label="Start Date"
-                                       For="@(() => Project.StartDate)" />
+                        <MudDatePicker Date="@(Project.StartDate)"
+                        DateChanged="@(e => Project.StartDate = e ?? DateTime.Now)"
+                        Label="Start Date"
+                        Required="true"
+                        RequiredError="Start Date is required"
+                        For="@(() => Project.StartDate)" />
                     </MudItem>
 
                     <MudItem xs="12" sm="4">
                         <MudDatePicker @bind-Date="Project.Installation"
-                                       Label="Installation"
-                                       For="@(() => Project.Installation)" />
+                        Label="Installation"
+                        Required="true"
+                        RequiredError="Installation Date is required"
+                        For="@(() => Project.Installation)" />
                     </MudItem>
 
                     <MudItem xs="12" sm="4">
-                        <MudDatePicker @bind-Date="Project.SOP"
-                                       Label="SOP"
-                                       For="@(() => Project.SOP)" />
+                        <MudDatePicker @bind-Date="Project.Sop"
+                        Label="SOP"
+                        Required="true"
+                        RequiredError="SOP Date is required"
+                        For="@(() => Project.Sop)" />
                     </MudItem>
                 </MudGrid>
             </MudPaper>
         </MudForm>
     </DialogContent>
     <DialogActions>
-        <MudButton OnClick="Cancel">Cancel</MudButton>
-        <MudButton Color="Color.Primary" OnClick="Submit">Save</MudButton>
+        <MudButton OnClick="Cancel" Disabled="@isProcessing">Cancel</MudButton>
+        <MudButton Color="Color.Primary" OnClick="Submit" Disabled="@isProcessing">Save</MudButton>
     </DialogActions>
 </MudDialog>
 
 @code {
-    [CascadingParameter] IMudDialogInstance MudDialog { get; set; }
-    [Parameter] public Project Project { get; set; } = new();
+    [CascadingParameter] IMudDialogInstance MudDialog { get; set; } = null!;
+    [Parameter] public Project Project { get; set; }  
+
+    private MudForm form = null!;
+    private ProjectValidator ProjectValidator = new();
+    private bool isProcessing;
+
     private List<Employee> engineers = new();
     private List<Employee> rmResponsibles = new();
     private List<Company> companies = new();
-    private MudForm form;
-    private ProjectValidator ProjectValidator = new();
     private List<ProjectType> projectTypes = new();
 
     protected override async Task OnInitializedAsync()
@@ -130,49 +150,73 @@
 
     private async Task LoadData()
     {
-        using var context = await DbFactory.CreateDbContextAsync();
-
-        // Wczytywanie danych słownikowych
-        projectTypes = await context.ProjectTypes
-            .Where(pt => pt.IsActive)
-            .OrderBy(pt => pt.Order)
-            .ToListAsync();
-
-        engineers = await context.Employees
-            .Where(e => e.IsActive)
-            .OrderBy(e => e.LastName)
-            .ThenBy(e => e.FirstName)
-            .ToListAsync();
-
-        rmResponsibles = await context.Employees
-            .Where(e => e.IsActive)
-            .OrderBy(e => e.LastName)
-            .ThenBy(e => e.FirstName)
-            .ToListAsync();
-
-        companies = await context.Companies
-            .Where(c => c.IsActive)
-            .OrderBy(c => c.Name)
-            .ToListAsync();
-
-        // Jeśli to edycja istniejącego projektu, wczytaj pełne dane projektu
-        if (Project.Id != 0)
+        try
         {
-            var existingProject = await context.Projects
-                .Include(p => p.Tooltree)
-                .Include(p => p.Engineer)
-                .Include(p => p.Supplier)
-                .Include(p => p.RMResponsible)
-                .Include(p => p.ProjectType)
-                .FirstOrDefaultAsync(p => p.Id == Project.Id);
+            using var context = await DbFactory.CreateDbContextAsync();
 
-            if (existingProject != null)
+            projectTypes = await context.ProjectTypes
+                .Where(pt => pt.IsActive)
+                .OrderBy(pt => pt.Order)
+                .ToListAsync();
+
+
+            // new EmployeePosition { Name = "Engineer" },
+            // new EmployeePosition { Name = "R&M" }
+            engineers = await context.Employees
+                .Where(e => e.IsActive && e.PositionId == 0)
+                .OrderBy(e => e.LastName)
+                .ThenBy(e => e.FirstName)
+                .ToListAsync();
+
+            rmResponsibles = await context.Employees
+                .Where(e => e.IsActive && e.PositionId == 1)
+                .OrderBy(e => e.LastName)
+                .ThenBy(e => e.FirstName)
+                .ToListAsync();
+
+            companies = await context.Companies
+                .Where(c => c.IsActive)
+                .OrderBy(c => c.Name)
+                .ToListAsync();
+
+            if (Project is not null)
             {
-                Project = existingProject;
+                var existingProject = await context.Projects
+                    .Include(p => p.Engineer)
+                    .Include(p => p.Supplier)
+                    .Include(p => p.RmTechniker)
+                    .Include(p => p.ProjectType)
+                    .Include(p => p.Tooltree)
+                    .FirstOrDefaultAsync(p => p.Id == Project.Id);
+
+                if (existingProject != null)
+                {
+                    Project = existingProject;
+                }
+            }
+            else
+            {
+                
+                Project = new Project()
+                {
+                    EcNumber = string.Empty,
+                    ProjectName = string.Empty,
+                    StartDate = DateTime.Now,
+                    Installation = DateTime.Now.AddDays(1),
+                    Sop = DateTime.Now.AddDays(2),
+                    EngineerId = 0,
+                    RmTechnikerId = 0
+                };
+                
+
+
             }
         }
+        catch (Exception ex)
+        {
+            await DialogService.ShowMessageBox("Error", $"Failed to load data: {ex.Message}");
+        }
     }
-
 
     private Color GetProjectTypeColor(ProjectType type)
     {
@@ -181,76 +225,98 @@
 
     private async Task Submit()
     {
-        await form.Validate();
-        if (form.IsValid)
+        if (isProcessing) return;
+
+        try
         {
+            isProcessing = true;
+            await form.Validate();
+
+            if (!form.IsValid) return;
+
             using var context = await DbFactory.CreateDbContextAsync();
+            await using var transaction = await context.Database.BeginTransactionAsync();
 
-            if (Project.Id == 0) // Nowy projekt
+            try
             {
-                // Najpierw dodajemy projekt do kontekstu
-                context.Projects.Add(Project);
-                await context.SaveChangesAsync(); // Zapisujemy, aby otrzymać Id projektu
-
-                // Tworzymy Tooltree z prawidłowym powiązaniem
-                var tooltree = new Tooltree
-                    {
-                        ProjectId = Project.Id,
-                        IsDone = false,
-                        TooltreeData = new List<TooltreeData>(),
-                        TooltreeFiles = new List<TooltreeFile>()
-                    };
-
-                // Dodajemy Tooltree do kontekstu
-                context.Tooltrees.Add(tooltree);
-                await context.SaveChangesAsync();
-
-                // Aktualizujemy projekt o TooltreeId
-                Project.TooltreeId = tooltree.Id;
-                context.Projects.Update(Project);
-                await context.SaveChangesAsync();
-            }
-            else // Aktualizacja istniejącego projektu
-            {
-                // Sprawdzamy czy projekt ma już Tooltree
-                var existingProject = await context.Projects
-                    .Include(p => p.Tooltree)
-                    .FirstOrDefaultAsync(p => p.Id == Project.Id);
-
-                if (existingProject != null)
+                if (Project.Id == 0)
                 {
-                    if (existingProject.Tooltree == null)
-                    {
-                        // Jeśli nie ma Tooltree, tworzymy nowy
-                        var tooltree = new Tooltree
-                            {
-                                ProjectId = Project.Id,
-                                IsDone = false,
-                                TooltreeData = new List<TooltreeData>(),
-                                TooltreeFiles = new List<TooltreeFile>()
-                            };
-
-                        context.Tooltrees.Add(tooltree);
-                        await context.SaveChangesAsync();
-
-                        Project.TooltreeId = tooltree.Id;
-                    }
-                    else
-                    {
-                        // Jeśli Tooltree istnieje, zachowujemy jego Id
-                        Project.TooltreeId = existingProject.TooltreeId;
-                    }
+                    await HandleNewProject(context);
+                }
+                else
+                {
+                    await HandleExistingProject(context);
                 }
 
-                // Aktualizujemy projekt
-                context.Entry(existingProject).CurrentValues.SetValues(Project);
-                await context.SaveChangesAsync();
+                await transaction.CommitAsync();
+                MudDialog.Close(DialogResult.Ok(true));
             }
-
-            MudDialog.Close(DialogResult.Ok(true));
+            catch
+            {
+                await transaction.RollbackAsync();
+                throw;
+            }
+        }
+        catch (Exception ex)
+        {
+            await DialogService.ShowMessageBox("Error", $"Failed to save project: {ex.Message}");
+        }
+        finally
+        {
+            isProcessing = false;
         }
     }
 
+    private async Task HandleNewProject(ApplicationDbContext context)
+    {
+        context.Projects.Add(Project);
+        await context.SaveChangesAsync();
+
+        var tooltree = new Tooltree
+            {
+                ProjectId = Project.Id,
+                IsDone = false,
+                TooltreeDatas = new List<TooltreeData>(),
+                TooltreeFiles = new List<TooltreeFile>()
+            };
+
+        context.Tooltrees.Add(tooltree);
+        await context.SaveChangesAsync();
+
+        Project.TooltreeId = tooltree.Id;
+        await context.SaveChangesAsync();
+    }
+
+    private async Task HandleExistingProject(ApplicationDbContext context)
+    {
+        var existingProject = await context.Projects
+            .Include(p => p.Tooltree)
+            .FirstOrDefaultAsync(p => p.Id == Project.Id);
+
+        if (existingProject == null)
+            throw new InvalidOperationException("Project not found");
+
+        if (existingProject.Tooltree == null)
+        {
+            var tooltree = new Tooltree
+                {
+                    ProjectId = Project.Id,
+                    IsDone = false,
+                    TooltreeDatas = new List<TooltreeData>(),
+                    TooltreeFiles = new List<TooltreeFile>()
+                };
+            context.Tooltrees.Add(tooltree);
+            await context.SaveChangesAsync();
+            Project.TooltreeId = tooltree.Id;
+        }
+        else
+        {
+            Project.TooltreeId = existingProject.TooltreeId;
+        }
+
+        context.Entry(existingProject).CurrentValues.SetValues(Project);
+        await context.SaveChangesAsync();
+    }
 
     private void Cancel() => MudDialog.Cancel();
 }

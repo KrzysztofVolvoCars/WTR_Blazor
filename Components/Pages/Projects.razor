@@ -26,17 +26,17 @@
         <MudTh>Project Name</MudTh>
         <MudTh>Engineer</MudTh>
         <MudTh>Supplier</MudTh>
-        <MudTh>R&M Responsible</MudTh>
+        <MudTh>R&M Techniker</MudTh>
         <MudTh>Type</MudTh>
         <MudTh>Dates</MudTh>
         <MudTh>Actions</MudTh>
     </HeaderContent>
     <RowTemplate>
-        <MudTd DataLabel="EC Number">@context.ECNumber</MudTd>
+        <MudTd DataLabel="EC Number">@context.EcNumber</MudTd>
         <MudTd DataLabel="Project Name">@context.ProjectName</MudTd>
         <MudTd DataLabel="Engineer">@($"{context.Engineer?.FirstName} {context.Engineer?.LastName}")</MudTd>
         <MudTd DataLabel="Supplier">@context.Supplier?.Name</MudTd>
-        <MudTd DataLabel="R&M Responsible">@($"{context.RMResponsible?.FirstName} {context.RMResponsible?.LastName}")</MudTd>
+        <MudTd DataLabel="R&M Responsible">@($"{context.RmTechniker?.FirstName} {context.RmTechniker?.LastName}")</MudTd>
         <MudTd DataLabel="Type">
             <MudChip T="string" Color="@GetProjectTypeColor(context.ProjectType)" Size="Size.Small">
                 @context.ProjectType?.Name
@@ -44,9 +44,9 @@
         </MudTd>
         <MudTd DataLabel="Dates">
             <MudStack>
-                <MudText Typo="Typo.caption">Start: @context.StartDate?.ToShortDateString()</MudText>
+                <MudText Typo="Typo.caption">Start: @context.StartDate.ToShortDateString()</MudText>
                 <MudText Typo="Typo.caption">Install: @(context.Installation?.ToShortDateString() ?? "N/A")</MudText>
-                <MudText Typo="Typo.caption">SOP: @(context.SOP?.ToShortDateString() ?? "N/A")</MudText>
+                <MudText Typo="Typo.caption">SOP: @(context.Sop?.ToShortDateString() ?? "N/A")</MudText>
             </MudStack>
         </MudTd>
         <MudTd DataLabel="Actions">
@@ -59,7 +59,7 @@
                                OnClick="@(() => DeleteProject(context))" />
             </MudTooltip>
             <MudTooltip Text="Power BI">
-                <MudIconButton Color="Color.Info" Href="@context.PowerBI_URL" Target="_blank">
+                <MudIconButton Color="Color.Info" Href="@context.PowerBiUrl" Target="_blank">
                     <MudIcon Size="Size.Small">
                         <MudIcon Size="Size.Small">
                             <img src="Images/powerBi_24.svg" alt="Power BI" width="20" height="20" />
@@ -94,11 +94,11 @@
         using var context = await DbFactory.CreateDbContextAsync();
         projects = await context.Projects
             .Include(p => p.Engineer)
-            .Include(p => p.RMResponsible)
+            .Include(p => p.RmTechniker)
             .Include(p => p.Supplier)
             .Include(p => p.ProjectPhase)
             .Include(p => p.ProjectType)
-            .Include(p => p.Deliverables)
+            .Include(p => p.Deliverable)
             .ToListAsync();
     }
 

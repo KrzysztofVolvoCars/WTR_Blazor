@@ -9,9 +9,15 @@ public class Company
     [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public int Id { get; set; }
+
     [Required]
-    public string Name { get; set; }
-    public byte[]? LogoData { get; set; }
-    [DefaultValue(true)]
-    public bool IsActive { get; set; } = true;
+    [MaxLength(100)]
+    public required string Name { get; set; }
+
+    [MaxLength(100)]
+    public byte[]? PhotoData { get; set; }
+
+    public required bool IsActive { get; set; }
+
+    public virtual ICollection<Employee> Employees { get; set; } = new List<Employee>();
 }

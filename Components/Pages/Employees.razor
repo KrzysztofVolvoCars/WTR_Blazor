@@ -101,12 +101,12 @@
         // Pobierz projekty z dodatkowymi informacjami
         var projectsAsEngineer = await context.Projects
             .Where(p => p.EngineerId == employee.Id)
-            .Select(p => new { p.ECNumber, p.ProjectName })
+            .Select(p => new { p.EcNumber, p.ProjectName })
             .ToListAsync();
 
         var projectsAsRM = await context.Projects
-            .Where(p => p.RMResponsibleId == employee.Id)
-            .Select(p => new { p.ECNumber, p.ProjectName })
+            .Where(p => p.RmTechnikerId == employee.Id)
+            .Select(p => new { p.EcNumber, p.ProjectName })
             .ToListAsync();
 
         // Jeśli pracownik jest przypisany do projektów
@@ -119,7 +119,7 @@
                 message += "Assigned as Engineer in projects:\n";
                 foreach (var project in projectsAsEngineer)
                 {
-                    message += $"- {project.ECNumber}: {project.ProjectName}\n";
+                    message += $"- {project.EcNumber}: {project.ProjectName}\n";
                 }
                 message += "\n";
             }
@@ -129,7 +129,7 @@
                 message += "Assigned as RM Responsible in projects:\n";
                 foreach (var project in projectsAsRM)
                 {
-                    message += $"- {project.ECNumber}: {project.ProjectName}\n";
+                    message += $"- {project.EcNumber}: {project.ProjectName}\n";
                 }
             }
 

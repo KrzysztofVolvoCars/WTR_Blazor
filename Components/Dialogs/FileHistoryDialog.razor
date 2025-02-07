@@ -1,5 +1,6 @@
 ﻿@using System.Diagnostics
-@using WTR_Blazor.Models.Tooltree
+ 
+
 @inject IDbContextFactory<ApplicationDbContext> DbFactory
 @inject IJSRuntime JS
 @inject ISnackbar Snackbar
@@ -16,7 +17,7 @@
             <RowTemplate>
                 <MudTd DataLabel="File Name">@context.Name</MudTd>
                 <MudTd DataLabel="Original Name">@context.OrginalName</MudTd>
-                <MudTd DataLabel="Created">@context.Created.ToString("yyyy-MM-dd HH:mm:ss")</MudTd>
+                <MudTd DataLabel="Created">@context.CreatedAt.ToString("yyyy-MM-dd HH:mm:ss")</MudTd>
                 <MudTd DataLabel="Actions">
                     <MudIconButton Icon="@Icons.Material.Filled.Download" Color="Color.Primary" OnClick="@(() => DownloadFile(context))" />
                     <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Error" OnClick="@(() => DeleteFile(context))" />

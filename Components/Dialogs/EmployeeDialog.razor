@@ -124,7 +124,7 @@
 
 @code {
     [CascadingParameter] IMudDialogInstance MudDialog { get; set; }
-    [Parameter] public Employee Employee { get; set; } = new();
+    [Parameter] public Employee Employee { get; set; }
     private List<Company> companies = new();
     private MudForm form;
     private EmployeeValidator EmployeeValidator = new();

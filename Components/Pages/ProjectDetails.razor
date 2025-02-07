@@ -2,8 +2,9 @@
 @inject IDbContextFactory<ApplicationDbContext> DbFactory
 @inject NavigationManager NavigationManager
 @inject ISnackbar Snackbar
+ 
 
-<MudContainer Fixed="true" Class="mt-4">
+<MudContainer Fixed="true" Class="mt-4" Style="background-color: red;">
     @if (project != null)
     {
         <MudGrid>
@@ -126,7 +127,7 @@
                         <MudCardContent>
                             <MudList T="Project" Dense="true">
                                 <MudListItem>
-                                    <MudText><b>EC Number:</b> @project.ECNumber</MudText>
+                                    <MudText><b>EC Number:</b> @project.EcNumber</MudText>
                                 </MudListItem>
                                 <MudListItem>
                                     <MudText><b>Project Name:</b> @project.ProjectName</MudText>
@@ -157,7 +158,7 @@
                                 <MudListItem>
                                     <div class="d-flex align-center">
                                         <MudIcon Icon="@Icons.Material.Filled.CalendarToday" Color="Color.Primary" Class="mr-2"/>
-                                        <MudText><b>Start Date:</b> @project.StartDate?.ToShortDateString()</MudText>
+                                        <MudText><b>Start Date:</b> @project.StartDate.ToShortDateString()</MudText>
                                     </div>
                                 </MudListItem>
                                 <MudListItem>
@@ -169,7 +170,7 @@
                                 <MudListItem>
                                     <div class="d-flex align-center">
                                         <MudIcon Icon="@Icons.Material.Filled.Flag" Color="Color.Success" Class="mr-2"/>
-                                        <MudText><b>SOP:</b> @project.SOP?.ToShortDateString()</MudText>
+                                        <MudText><b>SOP:</b> @project.Sop?.ToShortDateString()</MudText>
                                     </div>
                                 </MudListItem>
                             </MudList>
@@ -224,20 +225,20 @@
                         </MudCardHeader>
                         <MudCardContent>
                             <div class="d-flex align-center">
-                                @if (project.RMResponsible?.PhotoData != null)
+                                @if (project.RmTechniker.PhotoData != null)
                                 {
-                                        <MudAvatar Image="@($"data:image/png;base64,{Convert.ToBase64String(project.RMResponsible.PhotoData)}")" 
+                                        <MudAvatar Image="@($"data:image/png;base64,{Convert.ToBase64String(project.RmTechniker.PhotoData)}")" 
                                                   Class="mr-2" Size="Size.Large" />
                                 }
                                 else
                                 {
                                         <MudAvatar Color="Color.Secondary" Class="mr-2" Size="Size.Large">
-                                        @(project.RMResponsible?.FirstName.FirstOrDefault())@(project.RMResponsible?.LastName.FirstOrDefault())
+                                        @(project.RmTechniker?.FirstName.FirstOrDefault())@(project.RmTechniker?.LastName.FirstOrDefault())
                                         </MudAvatar>
                                 }
                                 <div>
-                                    <MudText Typo="Typo.body1">@($"{project.RMResponsible?.FirstName} {project.RMResponsible?.LastName}")</MudText>
-                                    <MudText Typo="Typo.body2">@project.RMResponsible?.Position</MudText>
+                                    <MudText Typo="Typo.body1">@($"{project.RmTechniker?.FirstName} {project.RmTechniker?.LastName}")</MudText>
+                                    <MudText Typo="Typo.body2">@project.RmTechniker?.Position</MudText>
                                 </div>
                             </div>
                         </MudCardContent>
@@ -254,9 +255,9 @@
                         </MudCardHeader>
                         <MudCardContent>
                             <div class="d-flex align-center">
-                                @if (project.Supplier?.LogoData != null)
+                                @if (project.Supplier?.PhotoData != null)
                                 {
-                                        <MudAvatar Image="@($"data:image/png;base64,{Convert.ToBase64String(project.Supplier.LogoData)}")" 
+                                        <MudAvatar Image="@($"data:image/png;base64,{Convert.ToBase64String(project.Supplier.PhotoData)}")" 
                                                   Class="mr-2" Size="Size.Large" />
                                 }
                                 else
@@ -325,14 +326,14 @@
         using var context = await DbFactory.CreateDbContextAsync();
         project = await context.Projects
             .Include(p => p.Engineer)
-            .Include(p => p.RMResponsible)
+            .Include(p => p.RmTechniker)
             .Include(p => p.Supplier)
             .Include(p => p.ProjectPhase)
             .Include(p => p.ProjectType)
             .Include(p => p.Tooltree)
             .FirstOrDefaultAsync(p => p.Id == Id);
 
-        projectPhases = await context.ProjectPhases.OrderBy(p => p.Order).ToListAsync();
+        projectPhases = await context.ProjectPhases.OrderBy(p => p.Name).ToListAsync();
 
         if (project == null)
         {
