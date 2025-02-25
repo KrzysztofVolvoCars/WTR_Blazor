@@ -1,4 +1,9 @@
-﻿@* https://mudblazor.com/features/icons#icons *@
+﻿@using Microsoft.AspNetCore.Components.Authorization
+@implements IDisposable
+
+@inject NavigationManager NavigationManager
+
+@* https://mudblazor.com/features/icons#icons *@
 <MudNavMenu>
    @*  <MudNavLink Href="" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Home">Home</MudNavLink>
     <MudNavLink Href="counter" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Add">Counter</MudNavLink> *@
@@ -9,6 +14,31 @@
 @* 
     <MudNavLink Href="weather" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.List">Weather</MudNavLink> *@
 
+
+
 </MudNavMenu>
 
 
+@code {
+    private string? currentUrl;
+
+    protected override void OnInitialized()
+    {
+        currentUrl = NavigationManager.ToBaseRelativePath(NavigationManager.Uri);
+        NavigationManager.LocationChanged += OnLocationChanged;
+    }
+
+    private void OnLocationChanged(object? sender, LocationChangedEventArgs e)
+    {
+        currentUrl = NavigationManager.ToBaseRelativePath(e.Location);
+        StateHasChanged();
+    }
+
+    private void Logout() =>
+        NavigationManager.NavigateTo("MicrosoftIdentity/Account/SignOut", forceLoad: true);
+
+    public void Dispose()
+    {
+        NavigationManager.LocationChanged -= OnLocationChanged;
+    }
+}

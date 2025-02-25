@@ -1,0 +1,98 @@
+﻿@page "/login"
+
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.Authorization
+@inject NavigationManager Navigation
+@inject AuthenticationStateProvider AuthenticationStateProvider
+
+@attribute [AllowAnonymous]
+
+<div class="login-container">
+    <div class="login-box">
+        <h1>WPR</h1>
+
+        <div class="form-group">
+            <button class="login-button" @onclick="HandleLogin">
+                LOGIN
+            </button>
+        </div>
+
+        <div class="login-footer">
+            <p>If you have no access request <a href="#">here</a>.</p>
+        </div>
+    </div>
+</div>
+
+@code {
+    private async Task HandleLogin()
+    {
+        // Navigation.NavigateTo("MicrosoftIdentity/Account/SignIn", true);
+        // Tutaj możesz wywołać właściwy mechanizm logowania,
+        // np. ręczne wywołanie przekierowania do Azure AD,
+        // gdy użytkownik kliknie przycisk "Login".
+        Navigation.NavigateTo("MicrosoftIdentity/Account/SignIn", forceLoad: true);
+    }
+}
+
+<style>
+    .login-container {
+        height: 100vh;
+        display: flex;
+        justify-content: flex-end; /* Ustawienie elementu po prawej stronie */
+        align-items: center; /* Wyśrodkowanie w pionie */
+        padding-right: 39px; /* Odstęp 50px od prawej krawędzi */
+        background-image: url('Images/background.webp');
+        background-size: cover;
+        background-position: center;
+        background-color: #1a1a1a;
+    }
+
+    .login-box {
+        background: white;
+        padding: 2rem;
+        border-radius: 12px;
+        box-shadow: 0 0 20px rgba(0,0,0,0.2);
+        text-align: center;
+        width: 300px;
+        margin: 20px;
+    }
+
+    h1 {
+        margin-bottom: 2rem;
+        color: #333;
+        font-family: system-ui, -apple-system, sans-serif;
+        font-weight: 500;
+    }
+
+    .login-button {
+        width: 100%;
+        padding: 12px;
+        background: #007bff;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 16px;
+        font-weight: 500;
+        transition: background-color 0.2s;
+    }
+
+    .login-button:hover {
+        background: #0056b3;
+    }
+
+    .login-footer {
+        margin-top: 1.5rem;
+        font-size: 0.9rem;
+        color: #666;
+    }
+
+    .login-footer a {
+        color: #007bff;
+        text-decoration: none;
+    }
+
+    .login-footer a:hover {
+        text-decoration: underline;
+    }
+</style>

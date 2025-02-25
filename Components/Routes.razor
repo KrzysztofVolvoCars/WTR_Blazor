@@ -1,8 +1,43 @@
-﻿ 
+﻿@using Microsoft.AspNetCore.Components.Authorization
+@using System.Diagnostics
+@inject NavigationManager NavigationManager
+@inject AuthenticationStateProvider AuthProvider
+
 <Router AppAssembly="typeof(Program).Assembly">
     <Found Context="routeData">
-        <RouteView RouteData="routeData" DefaultLayout="typeof(Layout.MainLayout)" />
+        <AuthorizeRouteView RouteData="routeData" DefaultLayout="typeof(Layout.MainLayout)">
+            <NotAuthorized>
+                @code {
+                    private bool isAuthenticated;
+                    private bool navigationHandled = false; // Zmienna, by unikać wielokrotnego przekierowania
+
+                    protected override async Task OnAfterRenderAsync(bool firstRender)
+                    {
+                        if (navigationHandled) return; // Zapobiega wielokrotnemu przekierowaniu
+
+                        var authState = await AuthProvider.GetAuthenticationStateAsync();
+                        isAuthenticated = authState.User.Identity?.IsAuthenticated ?? false;
+
+                        if (!isAuthenticated && !NavigationManager.Uri.Contains("/login", StringComparison.OrdinalIgnoreCase))
+                        {
+                            navigationHandled = true; // Oznaczamy, że nawigacja już się odbyła
+                            try
+                            {
+                                NavigationManager.NavigateTo("/login", forceLoad: true);
+                            }
+                            catch (Exception exception)
+                            {
+                                Debug.WriteLine("Navigation Exception: " + exception.Message);
+                            }
+                        }
+                    }
+                }
+            </NotAuthorized>
+        </AuthorizeRouteView>
+
         <FocusOnNavigate RouteData="routeData" Selector="h1" />
     </Found>
+    <NotFound>
+        <MudText Typo="Typo.h3" Class="text-danger">Page not found</MudText>
+    </NotFound>
 </Router>
-
