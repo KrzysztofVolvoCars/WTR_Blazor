@@ -2,12 +2,14 @@
 @inherits LayoutComponentBase
 @inject NavigationManager Navigation
 
+<MudThemeProvider Theme="@_theme" IsDarkMode="_isDarkMode" />
+<MudPopoverProvider />
+<MudDialogProvider />
+<MudSnackbarProvider />
+
 <AuthorizeView>
     <Authorized>
-        <MudThemeProvider Theme="@_theme" IsDarkMode="_isDarkMode" />
-        <MudPopoverProvider />
-        <MudDialogProvider />
-        <MudSnackbarProvider />
+
         <MudLayout>
             <MudAppBar Elevation="1">
                 <!-- Wszystko na lewej stronie -->
