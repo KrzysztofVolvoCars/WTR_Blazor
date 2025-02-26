@@ -13,41 +13,41 @@
                 <MudGrid Spacing="2">
                     <MudItem xs="12" sm="6">
                         <MudTextField @bind-Value="Project.EcNumber"
-                        Label="EC Number"
-                        For="@(() => Project.EcNumber)"
-                        Required="true"
-                        RequiredError="EC Number is required"
-                        Immediate="true"
-                        Counter="50" />
+                                      Label="EC Number"
+                                      For="@(() => Project.EcNumber)"
+                                      Required="true"
+                                      RequiredError="EC Number is required"
+                                      Immediate="true"
+                                      Counter="50" />
                     </MudItem>
 
                     <MudItem xs="12" sm="6">
                         <MudTextField @bind-Value="Project.ProjectName"
-                        Label="Project Name"
-                        For="@(() => Project.ProjectName)"
-                        Required="true"
-                        RequiredError="Project Name is required"
-                        Immediate="true"
-                        Counter="100" />
+                                      Label="Project Name"
+                                      For="@(() => Project.ProjectName)"
+                                      Required="true"
+                                      RequiredError="Project Name is required"
+                                      Immediate="true"
+                                      Counter="100" />
                     </MudItem>
 
                     <MudItem xs="12">
                         <MudTextField @bind-Value="Project.PowerBiUrl"
-                        Label="PowerBI URL"
-                        For="@(() => Project.PowerBiUrl)"
-                        Immediate="true"
-                        HelperText="Optional - must be a valid URL"
-                        Adornment="Adornment.Start"
-                        AdornmentIcon="@Icons.Custom.Brands.MicrosoftAzure"
-                        Counter="500" />
+                                      Label="PowerBI URL"
+                                      For="@(() => Project.PowerBiUrl)"
+                                      Immediate="true"
+                                      HelperText="Optional - must be a valid URL"
+                                      Adornment="Adornment.Start"
+                                      AdornmentIcon="@Icons.Custom.Brands.MicrosoftAzure"
+                                      Counter="500" />
                     </MudItem>
 
                     <MudItem xs="12" sm="6">
                         <MudSelect T="int" @bind-Value="Project.EngineerId"
-                        Label="Engineer"
-                        Required="true"
-                        RequiredError="Engineer is required"
-                        For="@(() => Project.EngineerId)">
+                                   Label="Engineer"
+                                   Required="true"
+                                   RequiredError="Engineer is required"
+                                   For="@(() => Project.EngineerId)">
                             @foreach (var engineer in engineers)
                             {
                                 <MudSelectItem T="int" Value="@engineer.Id">@($"{engineer.FirstName} {engineer.LastName}")</MudSelectItem>
@@ -57,8 +57,8 @@
 
                     <MudItem xs="12" sm="6">
                         <MudSelect T="int?" @bind-Value="Project.SupplierId"
-                        Label="Supplier"
-                        For="@(() => Project.SupplierId)">
+                                   Label="Supplier"
+                                   For="@(() => Project.SupplierId)">
                             @foreach (var company in companies)
                             {
                                 <MudSelectItem T="int?" Value="@company.Id">@company.Name</MudSelectItem>
@@ -68,10 +68,10 @@
 
                     <MudItem xs="12" sm="6">
                         <MudSelect T="int" @bind-Value="Project.RmTechnikerId"
-                        Label="R&M Responsible"
-                        Required="true"
-                        RequiredError="R&M Responsible is required"
-                        For="@(() => Project.RmTechnikerId)">
+                                   Label="R&M Responsible"
+                                   Required="true"
+                                   RequiredError="R&M Responsible is required"
+                                   For="@(() => Project.RmTechnikerId)">
                             @foreach (var responsible in rmResponsibles)
                             {
                                 <MudSelectItem T="int" Value="@responsible.Id">@($"{responsible.FirstName} {responsible.LastName}")</MudSelectItem>
@@ -82,9 +82,9 @@
                     <MudItem xs="12" Class="my-4">
                         <MudText Typo="Typo.subtitle1" Class="mb-2">Project Type</MudText>
                         <MudRadioGroup T="int?" @bind-Value="Project.ProjectTypeId"
-                        Required="true"
-                        RequiredError="Project Type is required"
-                        For="@(() => Project.ProjectTypeId)">
+                                       Required="true"
+                                       RequiredError="Project Type is required"
+                                       For="@(() => Project.ProjectTypeId)">
                             @foreach (var type in projectTypes.OrderBy(pt => pt.Order))
                             {
                                 <div class="d-flex align-center mb-2">
@@ -98,27 +98,27 @@
 
                     <MudItem xs="12" sm="4">
                         <MudDatePicker Date="@(Project.StartDate)"
-                        DateChanged="@(e => Project.StartDate = e ?? DateTime.Now)"
-                        Label="Start Date"
-                        Required="true"
-                        RequiredError="Start Date is required"
-                        For="@(() => Project.StartDate)" />
+                                       DateChanged="@(e => Project.StartDate = e ?? DateTime.Now)"
+                                       Label="Start Date"
+                                       Required="true"
+                                       RequiredError="Start Date is required"
+                                       For="@(() => Project.StartDate)" />
                     </MudItem>
 
                     <MudItem xs="12" sm="4">
                         <MudDatePicker @bind-Date="Project.Installation"
-                        Label="Installation"
-                        Required="true"
-                        RequiredError="Installation Date is required"
-                        For="@(() => Project.Installation)" />
+                                       Label="Installation"
+                                       Required="true"
+                                       RequiredError="Installation Date is required"
+                                       For="@(() => Project.Installation)" />
                     </MudItem>
 
                     <MudItem xs="12" sm="4">
                         <MudDatePicker @bind-Date="Project.Sop"
-                        Label="SOP"
-                        Required="true"
-                        RequiredError="SOP Date is required"
-                        For="@(() => Project.Sop)" />
+                                       Label="SOP"
+                                       Required="true"
+                                       RequiredError="SOP Date is required"
+                                       For="@(() => Project.Sop)" />
                     </MudItem>
                 </MudGrid>
             </MudPaper>
@@ -130,13 +130,16 @@
     </DialogActions>
 </MudDialog>
 
+
 @code {
     [CascadingParameter] IMudDialogInstance MudDialog { get; set; } = null!;
-    [Parameter] public Project Project { get; set; }  
+    [Parameter] public Project Project { get; set; }
 
     private MudForm form = null!;
     private ProjectValidator ProjectValidator = new();
     private bool isProcessing;
+    private bool _disposed;
+    private readonly CancellationTokenSource _cts = new();
 
     private List<Employee> engineers = new();
     private List<Employee> rmResponsibles = new();
@@ -145,11 +148,14 @@
 
     protected override async Task OnInitializedAsync()
     {
+        if (_disposed) return;
         await LoadData();
     }
 
     private async Task LoadData()
     {
+        if (_disposed) return;
+
         try
         {
             using var context = await DbFactory.CreateDbContextAsync();
@@ -157,29 +163,28 @@
             projectTypes = await context.ProjectTypes
                 .Where(pt => pt.IsActive)
                 .OrderBy(pt => pt.Order)
-                .ToListAsync();
+                .ToListAsync(_cts.Token);
 
-
-            // new EmployeePosition { Name = "Engineer" },
-            // new EmployeePosition { Name = "R&M" }
             engineers = await context.Employees
-                .Where(e => e.IsActive && e.PositionId == 0)
-                .OrderBy(e => e.LastName)
-                .ThenBy(e => e.FirstName)
-                .ToListAsync();
-
-            rmResponsibles = await context.Employees
                 .Where(e => e.IsActive && e.PositionId == 1)
                 .OrderBy(e => e.LastName)
                 .ThenBy(e => e.FirstName)
-                .ToListAsync();
+                .ToListAsync(_cts.Token);
+
+            rmResponsibles = await context.Employees
+                .Where(e => e.IsActive && e.PositionId == 2)
+                .OrderBy(e => e.LastName)
+                .ThenBy(e => e.FirstName)
+                .ToListAsync(_cts.Token);
 
             companies = await context.Companies
                 .Where(c => c.IsActive)
                 .OrderBy(c => c.Name)
-                .ToListAsync();
+                .ToListAsync(_cts.Token);
 
-            if (Project is not null)
+            var projectId = Project?.Id ?? 0;
+
+            if (projectId != 0)
             {
                 var existingProject = await context.Projects
                     .Include(p => p.Engineer)
@@ -187,17 +192,30 @@
                     .Include(p => p.RmTechniker)
                     .Include(p => p.ProjectType)
                     .Include(p => p.Tooltree)
-                    .FirstOrDefaultAsync(p => p.Id == Project.Id);
+                    .FirstOrDefaultAsync(p => p.Id == Project.Id, _cts.Token);
 
                 if (existingProject != null)
                 {
-                    Project = existingProject;
+                    Project = new Project
+                    {
+                        Id = existingProject.Id,
+                        EcNumber = existingProject.EcNumber,
+                        ProjectName = existingProject.ProjectName,
+                        StartDate = existingProject.StartDate,
+                        Installation = existingProject.Installation,
+                        Sop = existingProject.Sop,
+                        EngineerId = existingProject.EngineerId,
+                        SupplierId = existingProject.SupplierId,
+                        RmTechnikerId = existingProject.RmTechnikerId,
+                        ProjectTypeId = existingProject.ProjectTypeId,
+                        PowerBiUrl = existingProject.PowerBiUrl,
+                        TooltreeId = existingProject.TooltreeId
+                    };
                 }
             }
             else
             {
-                
-                Project = new Project()
+                Project = new Project
                 {
                     EcNumber = string.Empty,
                     ProjectName = string.Empty,
@@ -207,14 +225,18 @@
                     EngineerId = 0,
                     RmTechnikerId = 0
                 };
-                
-
-
             }
+        }
+        catch (OperationCanceledException)
+        {
+            // Ignoruj anulowane operacje
         }
         catch (Exception ex)
         {
-            await DialogService.ShowMessageBox("Error", $"Failed to load data: {ex.Message}");
+            if (!_disposed)
+            {
+                await DialogService.ShowMessageBox("Error", $"Failed to load data: {ex.Message}");
+            }
         }
     }
 
@@ -225,7 +247,7 @@
 
     private async Task Submit()
     {
-        if (isProcessing) return;
+        if (isProcessing || _disposed) return;
 
         try
         {
@@ -235,7 +257,7 @@
             if (!form.IsValid) return;
 
             using var context = await DbFactory.CreateDbContextAsync();
-            await using var transaction = await context.Database.BeginTransactionAsync();
+            await using var transaction = await context.Database.BeginTransactionAsync(_cts.Token);
 
             try
             {
@@ -248,18 +270,29 @@
                     await HandleExistingProject(context);
                 }
 
-                await transaction.CommitAsync();
-                MudDialog.Close(DialogResult.Ok(true));
+                await transaction.CommitAsync(_cts.Token);
+
+                if (!_disposed && MudDialog != null)
+                {
+                    MudDialog.Close(DialogResult.Ok(true));
+                }
             }
             catch
             {
-                await transaction.RollbackAsync();
+                await transaction.RollbackAsync(_cts.Token);
                 throw;
             }
         }
+        catch (OperationCanceledException)
+        {
+            // Ignoruj anulowane operacje
+        }
         catch (Exception ex)
         {
-            await DialogService.ShowMessageBox("Error", $"Failed to save project: {ex.Message}");
+            if (!_disposed)
+            {
+                await DialogService.ShowMessageBox("Error", $"Failed to save project: {ex.Message}");
+            }
         }
         finally
         {
@@ -270,28 +303,28 @@
     private async Task HandleNewProject(ApplicationDbContext context)
     {
         context.Projects.Add(Project);
-        await context.SaveChangesAsync();
+        await context.SaveChangesAsync(_cts.Token);
 
         var tooltree = new Tooltree
-            {
-                ProjectId = Project.Id,
-                IsDone = false,
-                TooltreeDatas = new List<TooltreeData>(),
-                TooltreeFiles = new List<TooltreeFile>()
-            };
+        {
+            ProjectId = Project.Id,
+            IsDone = false,
+            TooltreeDatas = new List<TooltreeData>(),
+            TooltreeFiles = new List<TooltreeFile>()
+        };
 
         context.Tooltrees.Add(tooltree);
-        await context.SaveChangesAsync();
+        await context.SaveChangesAsync(_cts.Token);
 
         Project.TooltreeId = tooltree.Id;
-        await context.SaveChangesAsync();
+        await context.SaveChangesAsync(_cts.Token);
     }
 
     private async Task HandleExistingProject(ApplicationDbContext context)
     {
         var existingProject = await context.Projects
             .Include(p => p.Tooltree)
-            .FirstOrDefaultAsync(p => p.Id == Project.Id);
+            .FirstOrDefaultAsync(p => p.Id == Project.Id, _cts.Token);
 
         if (existingProject == null)
             throw new InvalidOperationException("Project not found");
@@ -299,14 +332,14 @@
         if (existingProject.Tooltree == null)
         {
             var tooltree = new Tooltree
-                {
-                    ProjectId = Project.Id,
-                    IsDone = false,
-                    TooltreeDatas = new List<TooltreeData>(),
-                    TooltreeFiles = new List<TooltreeFile>()
-                };
+            {
+                ProjectId = Project.Id,
+                IsDone = false,
+                TooltreeDatas = new List<TooltreeData>(),
+                TooltreeFiles = new List<TooltreeFile>()
+            };
             context.Tooltrees.Add(tooltree);
-            await context.SaveChangesAsync();
+            await context.SaveChangesAsync(_cts.Token);
             Project.TooltreeId = tooltree.Id;
         }
         else
@@ -315,8 +348,24 @@
         }
 
         context.Entry(existingProject).CurrentValues.SetValues(Project);
-        await context.SaveChangesAsync();
+        await context.SaveChangesAsync(_cts.Token);
     }
 
-    private void Cancel() => MudDialog.Cancel();
+    private void Cancel()
+    {
+        if (!_disposed && MudDialog != null)
+        {
+            MudDialog.Cancel();
+        }
+    }
+
+    public void Dispose()
+    {
+        if (!_disposed)
+        {
+            _disposed = true;
+            _cts.Cancel();
+            _cts.Dispose();
+        }
+    }
 }

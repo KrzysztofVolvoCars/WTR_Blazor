@@ -44,7 +44,7 @@
         </MudTd>
         <MudTd DataLabel="Dates">
             <MudStack>
-                <MudText Typo="Typo.caption">Start: @context.StartDate.ToShortDateString()</MudText>
+                <MudText Typo="Typo.caption">Start: @(context.Installation?.ToShortDateString() ?? "N/A")</MudText>
                 <MudText Typo="Typo.caption">Install: @(context.Installation?.ToShortDateString() ?? "N/A")</MudText>
                 <MudText Typo="Typo.caption">SOP: @(context.Sop?.ToShortDateString() ?? "N/A")</MudText>
             </MudStack>

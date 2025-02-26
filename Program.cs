@@ -88,8 +88,12 @@ builder.Services.AddSingleton<GraphServiceClient>(sp =>
 builder.Services.AddControllersWithViews()
     .AddMicrosoftIdentityUI();
 
+
+//TODO: Delete loging
 builder.Services.AddDbContextFactory<ApplicationDbContext>(options =>
-    options.UseSqlite($"Data Source={dbPath}"));
+    options.UseSqlite($"Data Source={dbPath}")
+    .EnableSensitiveDataLogging()
+    .EnableDetailedErrors());
 
 
 builder.Services.Configure<FormOptions>(options =>

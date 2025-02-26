@@ -36,7 +36,7 @@ public class Project
     public string? PowerBiUrl { get; set; }
 
     [Required]
-    public required DateTime StartDate { get; set; }
+    public required DateTime? StartDate { get; set; }
 
     [Required]
     public required DateTime? Installation { get; set; }
