@@ -1,5 +1,6 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using WTR_Blazor.Models.TooltreeModels;
 
 namespace WTR_Blazor.Models.DeliverableModels;
 
@@ -20,9 +21,12 @@ public class DeliverableQuestion
 
     [Required]
     public required int QuestionGroupId { get; set; }
+    
+    public int? ProjectPhaseId { get; set; }
 
     public virtual DeliverableQuestionGroup QuestionGroup { get; set; } = null!;
-    public virtual ICollection<DeliverableAnswerType> PossibleAnswers { get; set; } = new List<DeliverableAnswerType>();
+    public virtual ProjectPhase? ProjectPhase { get; set; } = null!;
+    public virtual DeliverableAnswerType DeliverableAnswerType { get; set; } = null!;
 }
 
 

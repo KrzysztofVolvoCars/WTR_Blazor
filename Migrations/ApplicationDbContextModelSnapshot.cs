@@ -15,22 +15,7 @@ namespace WTR_Blazor.Migrations
         protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
-            modelBuilder.HasAnnotation("ProductVersion", "9.0.1");
-
-            modelBuilder.Entity("DeliverableAnswerTypeDeliverableQuestion", b =>
-                {
-                    b.Property<int>("PossibleAnswersId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("QuestionsId")
-                        .HasColumnType("INTEGER");
-
-                    b.HasKey("PossibleAnswersId", "QuestionsId");
-
-                    b.HasIndex("QuestionsId");
-
-                    b.ToTable("DeliverableQuestionAnswerTypes", (string)null);
-                });
+            modelBuilder.HasAnnotation("ProductVersion", "9.0.2");
 
             modelBuilder.Entity("WTR_Blazor.Models.Company", b =>
                 {
@@ -110,11 +95,17 @@ namespace WTR_Blazor.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
+                    b.Property<int>("DeliverableAnswerTypeId")
+                        .HasColumnType("INTEGER");
+
                     b.Property<string>("Description")
                         .HasMaxLength(500)
                         .HasColumnType("TEXT");
 
                     b.Property<bool>("IsActive")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int?>("ProjectPhaseId")
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("Question")
@@ -126,6 +117,10 @@ namespace WTR_Blazor.Migrations
                         .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("DeliverableAnswerTypeId");
+
+                    b.HasIndex("ProjectPhaseId");
 
                     b.HasIndex("QuestionGroupId");
 
@@ -507,21 +502,6 @@ namespace WTR_Blazor.Migrations
                     b.ToTable("TooltreeTypes");
                 });
 
-            modelBuilder.Entity("DeliverableAnswerTypeDeliverableQuestion", b =>
-                {
-                    b.HasOne("WTR_Blazor.Models.DeliverableModels.DeliverableAnswerType", null)
-                        .WithMany()
-                        .HasForeignKey("PossibleAnswersId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("WTR_Blazor.Models.DeliverableModels.DeliverableQuestion", null)
-                        .WithMany()
-                        .HasForeignKey("QuestionsId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("WTR_Blazor.Models.DeliverableModels.Deliverable", b =>
                 {
                     b.HasOne("WTR_Blazor.Models.Project", "Project")
@@ -535,11 +515,25 @@ namespace WTR_Blazor.Migrations
 
             modelBuilder.Entity("WTR_Blazor.Models.DeliverableModels.DeliverableQuestion", b =>
                 {
+                    b.HasOne("WTR_Blazor.Models.DeliverableModels.DeliverableAnswerType", "DeliverableAnswerType")
+                        .WithMany("Questions")
+                        .HasForeignKey("DeliverableAnswerTypeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("WTR_Blazor.Models.ProjectPhase", "ProjectPhase")
+                        .WithMany()
+                        .HasForeignKey("ProjectPhaseId");
+
                     b.HasOne("WTR_Blazor.Models.DeliverableModels.DeliverableQuestionGroup", "QuestionGroup")
                         .WithMany("Questions")
                         .HasForeignKey("QuestionGroupId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("DeliverableAnswerType");
+
+                    b.Navigation("ProjectPhase");
 
                     b.Navigation("QuestionGroup");
                 });
@@ -664,6 +658,11 @@ namespace WTR_Blazor.Migrations
             modelBuilder.Entity("WTR_Blazor.Models.DeliverableModels.Deliverable", b =>
                 {
                     b.Navigation("QuestionGroups");
+                });
+
+            modelBuilder.Entity("WTR_Blazor.Models.DeliverableModels.DeliverableAnswerType", b =>
+                {
+                    b.Navigation("Questions");
                 });
 
             modelBuilder.Entity("WTR_Blazor.Models.DeliverableModels.DeliverableQuestionGroup", b =>

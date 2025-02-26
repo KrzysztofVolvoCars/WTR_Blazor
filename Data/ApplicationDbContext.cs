@@ -194,9 +194,9 @@ public class ApplicationDbContext : DbContext
                 .HasForeignKey(dq => dq.QuestionGroupId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            entity.HasMany(dq => dq.PossibleAnswers)
+            entity.HasOne(dq => dq.DeliverableAnswerType)
                 .WithMany(dat => dat.Questions)
-                .UsingEntity(j => j.ToTable("DeliverableQuestionAnswerTypes"));
+                .OnDelete(DeleteBehavior.Cascade);
         });
 
         base.OnModelCreating(modelBuilder);

@@ -1,4 +1,7 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using DocumentFormat.OpenXml.EMMA;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Graph.Models;
+using System.Reflection.PortableExecutable;
 using WTR_Blazor.Data;
 using WTR_Blazor.Models;
 using WTR_Blazor.Models.DeliverableModels;
@@ -23,7 +26,11 @@ public static class DbInitializer
         await InitializeTooltreeType(context);
         await InitializeProjectTypes(context);
         await InitializeEmployees(context);
-      //  await InitializeDeliverablesAnswerTypes(context);
+
+        //Deliverable
+        await InitializeDeliverableAnswerTypes(context);
+        await InitializeDeliverableQuestionGroup(context);
+        await InitializeDeliverableQuestion(context);
 
         await context.SaveChangesAsync();
     }
@@ -141,6 +148,375 @@ public static class DbInitializer
             await context.TooltreeTypes.AddRangeAsync(tooltreeType);
         }
     }
+
+
+
+    private static async Task InitializeDeliverableQuestionGroup(ApplicationDbContext context)
+    {
+        if (!await context.DeliverableQuestionGroups.AnyAsync())
+        {
+            var deliverableQuestionGroups = new List<DeliverableQuestionGroup>
+            {
+                new DeliverableQuestionGroup
+                {
+                    Id=1,
+                    Name = "A: Equipment checklist",
+                    Description = "",
+                    IsActive = true,
+                    TooltreeDataId = 1
+                },
+                new DeliverableQuestionGroup
+                {
+                    Id=2,
+                    Name = "B: Documentation",
+                    Description = "",
+                    IsActive = true,
+                    TooltreeDataId = 1
+                },
+                new DeliverableQuestionGroup
+                {
+                    Id=3,
+                    Name = "C: Determe asset structure",
+                    Description = "",
+                    IsActive = true,
+                    TooltreeDataId = 1
+                },
+                new DeliverableQuestionGroup
+                {
+                    Id=4,
+                    Name = "D: Setup Bill of Material",
+                    Description = "",
+                    IsActive = true,
+                    TooltreeDataId = 1
+                },
+                new DeliverableQuestionGroup
+                {
+                    Id=5,
+                    Name = "E: Identify and assure availability of spare parts",
+                    Description = "",
+                    IsActive = true,
+                    TooltreeDataId = 1
+                },
+                new DeliverableQuestionGroup
+                {
+                    Id=6,
+                    Name = "F: Prepare and execute MTO (machine try out) ifo capability,reliability & maintainability",
+                    Description = "",
+                    IsActive = true,
+                    TooltreeDataId = 1
+                },
+                new DeliverableQuestionGroup
+                {
+                    Id=7,
+                    Name = "G: Prepare & provide training",
+                    Description = "",
+                    IsActive = true,
+                    TooltreeDataId = 1
+                },
+                new DeliverableQuestionGroup
+                {
+                    Id=8,
+                    Name = "H: Execute maintenance schedule",
+                    Description = "",
+                    IsActive = true,
+                    TooltreeDataId = 1
+                },
+                new DeliverableQuestionGroup
+                {
+                    Id=9,
+                    Name = "I: Setup maintenance program = Maintenance matrix",
+                    Description = "",
+                    IsActive = true,
+                    TooltreeDataId = 1
+                },
+                new DeliverableQuestionGroup
+                {
+                    Id=10,
+                    Name = "J: Demolisch equipment",
+                    Description = "",
+                    IsActive = true,
+                    TooltreeDataId = 1
+                },
+            };
+
+            await context.DeliverableQuestionGroups.AddRangeAsync(deliverableQuestionGroups);
+        }
+    }
+
+    private static async Task InitializeDeliverableQuestion(ApplicationDbContext context)
+    {
+        if (!await context.DeliverableQuestions.AnyAsync())
+        {
+            var deliverableQuestion = new List<DeliverableQuestion>
+            {
+                // A: Equipment checklist
+                new DeliverableQuestion
+                {
+                    Id = 1,
+                    Question = "1. Create object checklist maintenance engineer (DR_FAT_SAT)",
+                    Description = null,
+                    IsActive = true,
+                    QuestionGroupId = 1,
+                    ProjectPhaseId = null,
+                },
+                new DeliverableQuestion
+                {
+                    Id = 2,
+                    Question = "2. Design review",
+                    Description = null,
+                    IsActive = true,
+                    QuestionGroupId = 1,
+                    ProjectPhaseId = null,
+                },
+                new DeliverableQuestion
+                {
+                    Id = 3,
+                    Question = "3. FAT",
+                    Description = null,
+                    IsActive = true,
+                    QuestionGroupId = 1,
+                    ProjectPhaseId = null,
+                },
+                new DeliverableQuestion
+                {
+                    Id = 4,
+                    Question = "4. SAT",
+                    Description = null,
+                    IsActive = true,
+                    QuestionGroupId = 1,
+                    ProjectPhaseId = null,
+                },
+
+                //B: Documentation
+                new DeliverableQuestion
+                {
+                    Id = 5,
+                    Question = "1. DDM check (doc delivery matrix)",
+                    Description = null,
+                    IsActive = true,
+                    QuestionGroupId = 2,
+                    ProjectPhaseId = null,
+                },
+                new DeliverableQuestion
+                {
+                    Id = 6,
+                    Question = "2. Documentation follow up file (Status_Report_Documentation_EXCEL)",
+                    Description = null,
+                    IsActive = true,
+                    QuestionGroupId = 2,
+                    ProjectPhaseId = null,
+                },
+                new DeliverableQuestion
+                {
+                    Id = 7,
+                    Question = "3. FINAL documentation in Documentation system (VEDOC, NAS GA)",
+                    Description = null,
+                    IsActive = true,
+                    QuestionGroupId = 2,
+                    ProjectPhaseId = null,
+                },
+                new DeliverableQuestion
+                {
+                    Id = 8,
+                    Question = "4. Documentation available for Maintenance",
+                    Description = null,
+                    IsActive = true,
+                    QuestionGroupId = 2,
+                    ProjectPhaseId = null,
+                },
+
+                //C: Determe asset structure
+                new DeliverableQuestion
+                {
+                    Id = 9,
+                    Question = "1. Locaties in Maximo",
+                    Description = null,
+                    IsActive = true,
+                    QuestionGroupId = 3,
+                    ProjectPhaseId = null,
+                },
+                new DeliverableQuestion
+                {
+                    Id = 10,
+                    Question = "2. Locaties in Documentation system",
+                    Description = null,
+                    IsActive = true,
+                    QuestionGroupId = 3,
+                    ProjectPhaseId = null,
+                },
+                new DeliverableQuestion
+                {
+                    Id = 11,
+                    Question = "3. Asset created in Maximo (Add in tooltree)",
+                    Description = null,
+                    IsActive = true,
+                    QuestionGroupId = 3,
+                    ProjectPhaseId = null,
+                },
+               
+                //D: Setup Bill of Material
+                new DeliverableQuestion
+                {
+                    Id = 12,
+                    Question = "1. Buy Part list status (maximo data list)",
+                    Description = null,
+                    IsActive = true,
+                    QuestionGroupId = 4,
+                    ProjectPhaseId = null,
+                },
+                new DeliverableQuestion
+                {
+                    Id = 13,
+                    Question = "2. SparePart List in Maximo (BOM)",
+                    Description = null,
+                    IsActive = true,
+                    QuestionGroupId = 4,
+                    ProjectPhaseId = null,
+                },
+
+                //E: Identify and assure availability of spare parts
+                new DeliverableQuestion
+                {
+                    Id = 14,
+                    Question = "1. Early phase: Determine critical / long delivery spare parts and order (BoughtPart List)",
+                    Description = null,
+                    IsActive = true,
+                    QuestionGroupId = 5,
+                    ProjectPhaseId = null,
+                },
+                new DeliverableQuestion
+                {
+                    Id = 15,
+                    Question = "2. Standardize and order new spare parts",
+                    Description = null,
+                    IsActive = true,
+                    QuestionGroupId = 5,
+                    ProjectPhaseId = null,
+                },
+                new DeliverableQuestion
+                {
+                    Id = 16,
+                    Question = "3. Check status AS procedure",
+                    Description = null,
+                    IsActive = true,
+                    QuestionGroupId = 5,
+                    ProjectPhaseId = null,
+                },
+                new DeliverableQuestion
+                {
+                    Id = 17,
+                    Question = "4. Existing spare parts stock situation adapted",
+                    Description = null,
+                    IsActive = true,
+                    QuestionGroupId = 5,
+                    ProjectPhaseId = null,
+                },
+
+                //F: Prepare and execute MTO (machine try out) ifo capability, reliability &maintainability
+                new DeliverableQuestion
+                {
+                    Id = 18,
+                    Question = "1. Disturbance followup sytem adapted for objects on location (STW020, STW040)",
+                    Description = null,
+                    IsActive = true,
+                    QuestionGroupId = 6,
+                    ProjectPhaseId = null,
+                },
+                new DeliverableQuestion
+                {
+                    Id = 19,
+                    Question = "2. Test hotspare equipment and back up programs",
+                    Description = null,
+                    IsActive = true,
+                    QuestionGroupId = 6,
+                    ProjectPhaseId = null,
+                },
+                
+                //G: Prepare & provide training
+                new DeliverableQuestion
+                {
+                    Id = 20,
+                    Question = "1. Plan training line builder, agree content / nr persons + dates",
+                    Description = null,
+                    IsActive = true,
+                    QuestionGroupId = 7,
+                    ProjectPhaseId = null,
+                },
+                new DeliverableQuestion
+                {
+                    Id = 21,
+                    Question = "2. Organize training technicians, machine operators:  location, trainer, participants",
+                    Description = null,
+                    IsActive = true,
+                    QuestionGroupId = 7,
+                    ProjectPhaseId = null,
+                },
+                                
+                //H: Execute maintenance schedule
+                new DeliverableQuestion
+                {
+                    Id = 22,
+                    Question = "1. Assign operator maintenance tasks to the teams educate,execute and gather feedback",
+                    Description = null,
+                    IsActive = true,
+                    QuestionGroupId = 8,
+                    ProjectPhaseId = null,
+                },
+                new DeliverableQuestion
+                {
+                    Id = 23,
+                    Question = "2. Start execution specialized maintenance tasks , educate, execute and gather feedback ",
+                    Description = null,
+                    IsActive = true,
+                    QuestionGroupId = 8,
+                    ProjectPhaseId = null,
+                },
+                                                
+                //I: Setup maintenance program = Maintenance matrix
+                new DeliverableQuestion
+                {
+                    Id = 24,
+                    Question = "1. Jobplan in Maximo (WO's are created by Maximo)",
+                    Description = null,
+                    IsActive = true,
+                    QuestionGroupId = 9,
+                    ProjectPhaseId = null,
+                },
+
+                //J: Demolisch equipment
+                new DeliverableQuestion
+                {
+                    Id = 25,
+                    Question = "1. Delete documentation in documentation system (VEDOC, NAS GA)",
+                    Description = null,
+                    IsActive = true,
+                    QuestionGroupId = 10,
+                    ProjectPhaseId = null,
+                },
+                new DeliverableQuestion
+                {
+                    Id = 26,
+                    Question = "2. Clean up Maximo (Location, Asset, BOM,SparePart List....)",
+                    Description = null,
+                    IsActive = true,
+                    QuestionGroupId = 10,
+                    ProjectPhaseId = null,
+                },
+                new DeliverableQuestion
+                {
+                    Id = 27,
+                    Question = "3. T-Client",
+                    Description = null,
+                    IsActive = true,
+                    QuestionGroupId = 10,
+                    ProjectPhaseId = null,
+                },
+            };
+
+            await context.DeliverableQuestions.AddRangeAsync(deliverableQuestion);
+        }
+    }
+
 
     private static async Task InitializeDeliverableAnswerTypes(ApplicationDbContext context)
     {

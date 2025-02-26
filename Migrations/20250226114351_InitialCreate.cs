@@ -329,41 +329,30 @@ namespace WTR_Blazor.Migrations
                     Question = table.Column<string>(type: "TEXT", maxLength: 500, nullable: false),
                     Description = table.Column<string>(type: "TEXT", maxLength: 500, nullable: true),
                     IsActive = table.Column<bool>(type: "INTEGER", nullable: false),
-                    QuestionGroupId = table.Column<int>(type: "INTEGER", nullable: false)
+                    QuestionGroupId = table.Column<int>(type: "INTEGER", nullable: false),
+                    ProjectPhaseId = table.Column<int>(type: "INTEGER", nullable: true),
+                    DeliverableAnswerTypeId = table.Column<int>(type: "INTEGER", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_DeliverableQuestions", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_DeliverableQuestions_DeliverableAnswerTypes_DeliverableAnswerTypeId",
+                        column: x => x.DeliverableAnswerTypeId,
+                        principalTable: "DeliverableAnswerTypes",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_DeliverableQuestions_DeliverableQuestionGroups_QuestionGroupId",
                         column: x => x.QuestionGroupId,
                         principalTable: "DeliverableQuestionGroups",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "DeliverableQuestionAnswerTypes",
-                columns: table => new
-                {
-                    PossibleAnswersId = table.Column<int>(type: "INTEGER", nullable: false),
-                    QuestionsId = table.Column<int>(type: "INTEGER", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_DeliverableQuestionAnswerTypes", x => new { x.PossibleAnswersId, x.QuestionsId });
                     table.ForeignKey(
-                        name: "FK_DeliverableQuestionAnswerTypes_DeliverableAnswerTypes_PossibleAnswersId",
-                        column: x => x.PossibleAnswersId,
-                        principalTable: "DeliverableAnswerTypes",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_DeliverableQuestionAnswerTypes_DeliverableQuestions_QuestionsId",
-                        column: x => x.QuestionsId,
-                        principalTable: "DeliverableQuestions",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        name: "FK_DeliverableQuestions_ProjectPhases_ProjectPhaseId",
+                        column: x => x.ProjectPhaseId,
+                        principalTable: "ProjectPhases",
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateIndex(
@@ -371,11 +360,6 @@ namespace WTR_Blazor.Migrations
                 table: "Companies",
                 column: "Name",
                 unique: true);
-
-            migrationBuilder.CreateIndex(
-                name: "IX_DeliverableQuestionAnswerTypes_QuestionsId",
-                table: "DeliverableQuestionAnswerTypes",
-                column: "QuestionsId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_DeliverableQuestionGroups_DeliverableId",
@@ -386,6 +370,16 @@ namespace WTR_Blazor.Migrations
                 name: "IX_DeliverableQuestionGroups_TooltreeDataId",
                 table: "DeliverableQuestionGroups",
                 column: "TooltreeDataId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_DeliverableQuestions_DeliverableAnswerTypeId",
+                table: "DeliverableQuestions",
+                column: "DeliverableAnswerTypeId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_DeliverableQuestions_ProjectPhaseId",
+                table: "DeliverableQuestions",
+                column: "ProjectPhaseId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_DeliverableQuestions_QuestionGroupId",
@@ -471,16 +465,13 @@ namespace WTR_Blazor.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "DeliverableQuestionAnswerTypes");
+                name: "DeliverableQuestions");
 
             migrationBuilder.DropTable(
                 name: "TooltreeFiles");
 
             migrationBuilder.DropTable(
                 name: "DeliverableAnswerTypes");
-
-            migrationBuilder.DropTable(
-                name: "DeliverableQuestions");
 
             migrationBuilder.DropTable(
                 name: "DeliverableQuestionGroups");

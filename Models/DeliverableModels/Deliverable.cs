@@ -13,6 +13,12 @@ public class Deliverable
     [Required]
     public required int ProjectId { get; set; }
 
+    public int Progress { get; set; } = 0;
+
+    public bool isActive { get; set; } = false;
+
+    public bool isDone { get; set; } = false;
+
     public virtual Project Project { get; set; } = null!;
     public virtual ICollection<DeliverableQuestionGroup> QuestionGroups { get; set; } = new List<DeliverableQuestionGroup>();
 }
